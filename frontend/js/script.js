@@ -206,18 +206,32 @@ document.getElementById('form-gastos').addEventListener('submit', async (e) => {
             const r = data.resultado;
             const passouDos50 = r.gastos_essenciais_percentual > 50;
 
-            // Textos dinâmicos baseados se passou dos 50% ou não
+            let contentLazer = "";
+            let contentReserva = "";
             let msgFixos = "Porcentagem do seu salário comprometida com necessidades básicas e obrigações mensais.";
-            let msgLazer = "Recomendação de valor mensal para despesas com entretenimento e estilo de vida.";
-            let msgReserva = "Valor ideal a ser guardado mensalmente para construir uma rede de segurança contra imprevistos.";
 
             if (passouDos50) {
-                msgFixos = "Atenção: Seus gastos fixos ultrapassaram 50%. Faça um controle financeiro e quite as dívidas antes de começar a dividir para lazer e reservas.";
-                msgLazer = "Com gastos fixos acima de 50%, faça um controle financeiro e quite as dívidas antes de começar a dividir para 30% e 20%.";
-                msgReserva = "Com gastos fixos acima de 50%, faça um controle financeiro e quite as dívidas antes de começar a dividir para 30% e 20%.";
+                msgFixos = "Atenção: Seus gastos fixos ultrapassaram 50%. Faça um controle financeiro e quite as dívidas antes de destinar verba para lazer ou reservas.";
+                
+                contentLazer = `
+                    <div style="font-size: 1.1em; color: #e74c3c; font-weight: bold;">Indisponível (Ultrapassou o limite)</div>
+                    <small style="color: #c0392b; display: block; margin-top: 5px; font-weight: bold;">Faça um controle financeiro e quite as dívidas antes de gastar com lazer.</small>
+                `;
+
+                contentReserva = `
+                    <div style="font-size: 1.1em; color: #e74c3c; font-weight: bold;">Indisponível (Ultrapassou o limite)</div>
+                    <small style="color: #c0392b; display: block; margin-top: 5px; font-weight: bold;">Direcione o excedente para quitar as dívidas prioritariamente.</small>
+                `;
             } else {
-                msgLazer = "Com gastos fixos abaixo ou igual a 50%, você pode destinar essa quantia para lazer e estilo de vida.";
-                msgReserva = "Com gastos fixos abaixo ou igual a 50%, mantenha esse valor guardado para construir sua reserva de emergência.";
+                contentLazer = `
+                    <div style="font-size: 1.3em; color: #2980b9; font-weight: bold;">R$ ${r.valor_lazer_30.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
+                    <small style="color: #666; display: block; margin-top: 5px;">Recomendação de valor mensal para despesas com entretenimento e estilo de vida.</small>
+                `;
+
+                contentReserva = `
+                    <div style="font-size: 1.3em; color: #8e44ad; font-weight: bold;">R$ ${r.valor_guardar_20.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
+                    <small style="color: #666; display: block; margin-top: 5px;">Valor ideal a ser guardado mensalmente para construir uma rede de segurança contra imprevistos.</small>
+                `;
             }
             
             box.innerHTML = `
@@ -237,14 +251,12 @@ document.getElementById('form-gastos').addEventListener('submit', async (e) => {
 
                     <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                         <strong>Separar para Lazer (30%)</strong>
-                        <div style="font-size: 1.3em; color: #2980b9; font-weight: bold;">R$ ${r.valor_lazer_30.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                        <small style="color: #666; display: block; margin-top: 5px;">${msgLazer}</small>
+                        ${contentLazer}
                     </div>
 
                     <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                         <strong>Reserva de Emergência (20%)</strong>
-                        <div style="font-size: 1.3em; color: #8e44ad; font-weight: bold;">R$ ${r.valor_guardar_20.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                        <small style="color: #666; display: block; margin-top: 5px;">${msgReserva}</small>
+                        ${contentReserva}
                     </div>
 
                 </div>
