@@ -182,7 +182,7 @@ document.getElementById('form-financiamento').addEventListener('submit', async (
     }
 });
 
-// 3. Calculadora de Gastos (Orçamento 50/30/20) - Organizado em caixas separadas com explicações
+// 3. Calculadora de Gastos (Orçamento 50/30/20) - Organizado em caixas separadas com explicações customizadas
 document.getElementById('form-gastos').addEventListener('submit', async (e) => {
     e.preventDefault();
     const salario_liquido = parseValor(document.getElementById('gastos-salario').value);
@@ -204,6 +204,21 @@ document.getElementById('form-gastos').addEventListener('submit', async (e) => {
 
         if (response.ok) {
             const r = data.resultado;
+            const passouDos50 = r.gastos_essenciais_percentual > 50;
+
+            // Textos dinâmicos baseados se passou dos 50% ou não
+            let msgEssenciais = "Porcentagem do seu salário comprometida com necessidades básicas como moradia e alimentação.";
+            let msgLazer = "Recomendação de valor mensal para despesas com entretenimento e estilo de vida.";
+            let msgReserva = "Valor ideal a ser guardado mensalmente para construir uma rede de segurança contra imprevistos.";
+
+            if (passouDos50) {
+                msgEssenciais = "Atenção: Seus gastos essenciais ultrapassaram 50%. Faça um controle financeiro e quite as dívidas antes de começar a dividir para lazer e reservas.";
+                msgLazer = "Com gastos fixos acima de 50%, evite este gasto com lazer por enquanto até normalizar as finanças.";
+                msgReserva = "Com gastos fixos acima de 50%, tente direcionar qualquer sobra para quitar dívidas antes de focar totalmente na reserva.";
+            } else {
+                msgLazer = "Com gastos fixos abaixo ou igual a 50%, você pode destinar essa quantia para lazer e estilo de vida.";
+                msgReserva = "Com gastos fixos abaixo ou igual a 50%, mantenha esse valor guardado para construir sua reserva de emergência.";
+            }
             
             box.innerHTML = `
                 <div style="display: grid; gap: 12px; margin-top: 15px;">
@@ -216,20 +231,20 @@ document.getElementById('form-gastos').addEventListener('submit', async (e) => {
 
                     <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                         <strong>Gastos Essenciais (50%)</strong>
-                        <div style="font-size: 1.3em; color: ${r.gastos_essenciais_percentual > 50 ? '#e74c3c' : '#27ae60'}; font-weight: bold;">${r.gastos_essenciais_percentual.toFixed(2)}%</div>
-                        <small style="color: #666; display: block; margin-top: 5px;">Porcentagem do seu salário comprometida com necessidades básicas como moradia e alimentação.</small>
+                        <div style="font-size: 1.3em; color: ${passouDos50 ? '#e74c3c' : '#27ae60'}; font-weight: bold;">${r.gastos_essenciais_percentual.toFixed(2)}%</div>
+                        <small style="color: ${passouDos50 ? '#c0392b' : '#666'}; display: block; margin-top: 5px; ${passouDos50 ? 'font-weight: bold;' : ''}">${msgEssenciais}</small>
                     </div>
 
                     <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                         <strong>Separar para Lazer (30%)</strong>
                         <div style="font-size: 1.3em; color: #2980b9; font-weight: bold;">R$ ${r.valor_lazer_30.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                        <small style="color: #666; display: block; margin-top: 5px;">Recomendação de valor mensal para despesas com entretenimento e estilo de vida.</small>
+                        <small style="color: #666; display: block; margin-top: 5px;">${msgLazer}</small>
                     </div>
 
                     <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                         <strong>Reserva de Emergência (20%)</strong>
                         <div style="font-size: 1.3em; color: #8e44ad; font-weight: bold;">R$ ${r.valor_guardar_20.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                        <small style="color: #666; display: block; margin-top: 5px;">Valor ideal a ser guardado mensalmente para construir uma rede de segurança contra imprevistos.</small>
+                        <small style="color: #666; display: block; margin-top: 5px;">${msgReserva}</small>
                     </div>
 
                 </div>
