@@ -182,7 +182,7 @@ document.getElementById('form-financiamento').addEventListener('submit', async (
     }
 });
 
-// 3. Calculadora de Gastos (Orçamento 50/30/20) - Organizado em caixas separadas com explicações customizadas
+// 3. Calculadora de Gastos (Organizada em caixas separadas com explicações customizadas)
 document.getElementById('form-gastos').addEventListener('submit', async (e) => {
     e.preventDefault();
     const salario_liquido = parseValor(document.getElementById('gastos-salario').value);
@@ -207,14 +207,14 @@ document.getElementById('form-gastos').addEventListener('submit', async (e) => {
             const passouDos50 = r.gastos_essenciais_percentual > 50;
 
             // Textos dinâmicos baseados se passou dos 50% ou não
-            let msgEssenciais = "Porcentagem do seu salário comprometida com necessidades básicas como moradia e alimentação.";
+            let msgFixos = "Porcentagem do seu salário comprometida com necessidades básicas e obrigações mensais.";
             let msgLazer = "Recomendação de valor mensal para despesas com entretenimento e estilo de vida.";
             let msgReserva = "Valor ideal a ser guardado mensalmente para construir uma rede de segurança contra imprevistos.";
 
             if (passouDos50) {
-                msgEssenciais = "Atenção: Seus gastos essenciais ultrapassaram 50%. Faça um controle financeiro e quite as dívidas antes de começar a dividir para lazer e reservas.";
-                msgLazer = "Com gastos fixos acima de 50%, evite este gasto com lazer por enquanto até normalizar as finanças.";
-                msgReserva = "Com gastos fixos acima de 50%, tente direcionar qualquer sobra para quitar dívidas antes de focar totalmente na reserva.";
+                msgFixos = "Atenção: Seus gastos fixos ultrapassaram 50%. Faça um controle financeiro e quite as dívidas antes de começar a dividir para lazer e reservas.";
+                msgLazer = "Com gastos fixos acima de 50%, faça um controle financeiro e quite as dívidas antes de começar a dividir para 30% e 20%.";
+                msgReserva = "Com gastos fixos acima de 50%, faça um controle financeiro e quite as dívidas antes de começar a dividir para 30% e 20%.";
             } else {
                 msgLazer = "Com gastos fixos abaixo ou igual a 50%, você pode destinar essa quantia para lazer e estilo de vida.";
                 msgReserva = "Com gastos fixos abaixo ou igual a 50%, mantenha esse valor guardado para construir sua reserva de emergência.";
@@ -230,9 +230,9 @@ document.getElementById('form-gastos').addEventListener('submit', async (e) => {
                     </div>
 
                     <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <strong>Gastos Essenciais (50%)</strong>
+                        <strong>Gastos Fixos (50%)</strong>
                         <div style="font-size: 1.3em; color: ${passouDos50 ? '#e74c3c' : '#27ae60'}; font-weight: bold;">${r.gastos_essenciais_percentual.toFixed(2)}%</div>
-                        <small style="color: ${passouDos50 ? '#c0392b' : '#666'}; display: block; margin-top: 5px; ${passouDos50 ? 'font-weight: bold;' : ''}">${msgEssenciais}</small>
+                        <small style="color: ${passouDos50 ? '#c0392b' : '#666'}; display: block; margin-top: 5px; ${passouDos50 ? 'font-weight: bold;' : ''}">${msgFixos}</small>
                     </div>
 
                     <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
