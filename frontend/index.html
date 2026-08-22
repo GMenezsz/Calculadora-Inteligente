@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadoras Inteligentes</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Menu Lateral Estilo Calcula Geral -->
+    <aside class="sidebar">
+        <div class="logo-area">
+            <h2>Calculadora Inteligente</h2>
+        </div>
+        <nav class="menu">
+            <div class="menu-category">🎓 EDUCAÇÃO</div>
+            <ul>
+                <li><a href="#" class="nav-link active" data-target="media-section">Média Escolar</a></li>
+            </ul>
+            <div class="menu-category">💰 FINANÇAS</div>
+            <ul>
+                <li><a href="#" class="nav-link" data-target="financiamento-section">Financiamento</a></li>
+                <li><a href="#" class="nav-link" data-target="gastos-section">Orçamento 50/30/20</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="main-content">
+        <header class="top-header">
+            <h1>Calculadoras Brasileiras</h1>
+        </header>
+
+        <div class="container">
+            
+            <!-- SEÇÃO: MÉDIA ESCOLAR -->
+            <section id="media-section" class="calc-section active">
+                <div class="card">
+                    <h2>Calculadora de Média</h2>
+                    <form id="form-media">
+                        <div class="input-group">
+                            <label>Prova Parcial:</label>
+                            <input type="text" id="media-parcial" required placeholder="Ex: 7,0 ou 7.0">
+                        </div>
+                        <div class="input-group">
+                            <label>Prova Global:</label>
+                            <input type="text" id="media-global" required placeholder="Ex: 8,5 ou 8.5">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label>Trabalhos (separados por vírgula):</label>
+                            <input type="text" id="media-trabalhos" placeholder="Ex: 8.0, 9,5, 10">
+                        </div>
+
+                        <div class="input-group">
+                            <label>Pontos Extras (separados por vírgula):</label>
+                            <input type="text" id="media-extras" placeholder="Ex: 2,0">
+                        </div>
+
+                        <button type="submit" class="btn">Calcular Média</button>
+                    </form>
+                    <div id="resultado-media" class="resultado-box hidden"></div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO: FINANCIAMENTO -->
+            <section id="financiamento-section" class="calc-section">
+                <div class="card">
+                    <h2>Calculadora de Financiamento</h2>
+                    <form id="form-financiamento">
+                        <div class="input-group">
+                            <label>Valor do Produto:</label>
+                            <input type="text" id="fin-valor" required placeholder="Ex: 10.000,00 ou 10000">
+                        </div>
+                        <div class="input-group">
+                            <label>Taxa de Juros Mensal (%):</label>
+                            <input type="text" id="fin-juros" required placeholder="Ex: 1.5 ou 1,5">
+                        </div>
+                        <div class="input-group">
+                            <label>Prazo (Anos):</label>
+                            <input type="text" id="fin-ano" required placeholder="Ex: 5">
+                        </div>
+                        <div class="input-group">
+                            <label>Valor de Entrada (Opcional):</label>
+                            <input type="text" id="fin-entrada" placeholder="Ex: 1.000,00 ou 1000">
+                        </div>
+                        <button type="submit" class="btn">Calcular Financiamento</button>
+                    </form>
+                    <div id="resultado-financiamento" class="resultado-box hidden"></div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO: ORÇAMENTO 50/30/20 -->
+            <section id="gastos-section" class="calc-section">
+                <div class="card">
+                    <h2>Orçamento 50/30/20</h2>
+                    <form id="form-gastos">
+                        <div class="input-group">
+                            <label>Salário Líquido:</label>
+                            <input type="text" id="gastos-salario" required placeholder="Ex: 4.000,00 ou 4000">
+                        </div>
+                        <div class="input-group">
+                            <label>Gastos Essenciais:</label>
+                            <input type="text" id="gastos-essenciais" required placeholder="Ex: 2.000,00 ou 2000">
+                        </div>
+                        <button type="submit" class="btn">Calcular Orçamento</button>
+                    </form>
+                    <div id="resultado-gastos" class="resultado-box hidden"></div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
