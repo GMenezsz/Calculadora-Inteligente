@@ -1,4 +1,5 @@
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://calculadora-intelgente-api.onrender.com
+";
 
 // Alternar entre abas do menu lateral
 const navLinks = document.querySelectorAll('.nav-link');
