@@ -115,7 +115,7 @@ document.getElementById('form-media').addEventListener('submit', async (e) => {
     }
 });
 
-// 2. Calculadora de Financiamento (Organizada em caixas individuais com explicações)
+// 2. Calculadora de Financiamento (Corrigido para enviar 'anos')
 document.getElementById('form-financiamento').addEventListener('submit', async (e) => {
     e.preventDefault();
     const valor = parseValor(document.getElementById('fin-valor').value);
@@ -131,7 +131,8 @@ document.getElementById('form-financiamento').addEventListener('submit', async (
         return;
     }
 
-    const url = `${API_URL}/Calculadora_financiamento?valor=${valor}&taxa_juros=${taxa_juros}&ano=${ano}&valor_entrada=${valor_entrada}`;
+    // CORREÇÃO: Alterado de 'ano=' para 'anos=' para bater com o seu backend
+    const url = `${API_URL}/Calculadora_financiamento?valor=${valor}&taxa_juros=${taxa_juros}&anos=${ano}&valor_entrada=${valor_entrada}`;
 
     try {
         const response = await fetch(url, { method: 'POST' });
