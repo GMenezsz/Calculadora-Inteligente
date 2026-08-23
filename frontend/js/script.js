@@ -16,20 +16,15 @@ navLinks.forEach(link => {
     });
 });
 
-// Funções de limpeza e conversão corrigidas para decimais e milhares
+// Função segura para tratar pontos de milhar e vírgulas decimais
 function parseValor(valorStr) {
     if (!valorStr) return NaN;
     let str = valorStr.toString().trim();
     
-    // Se tem vírgula e ponto, assumimos padrão brasileiro (ponto para milhar, vírgula para decimal)
     if (str.includes('.') && str.includes(',')) {
         str = str.replace(/\./g, '').replace(',', '.');
-    } 
-    // Se tem apenas ponto e ele está no formato decimal (ex: 2.5 ou 10.5), mantemos o ponto.
-    // Se for um milhar puro com ponto sem vírgula (ex: 10.000), tratamos adequadamente.
-    else if (str.includes('.')) {
+    } else if (str.includes('.')) {
         const partes = str.split('.');
-        // Se a última parte tem 3 dígitos e tem mais de um ponto, é separador de milhar
         if (partes.length > 2 || (partes.length === 2 && partes[1].length === 3 && partes[0].length <= 3)) {
             str = str.replace(/\./g, '');
         }
@@ -132,7 +127,7 @@ document.getElementById('form-media').addEventListener('submit', async (e) => {
     }
 });
 
-// 2. Calculadora de Financiamento
+// 2. Calculadora de Financiamento (Alinhado com a rota /Calculadora_financiamento)
 document.getElementById('form-financiamento').addEventListener('submit', async (e) => {
     e.preventDefault();
     const valor = parseValor(document.getElementById('fin-valor').value);
@@ -148,7 +143,7 @@ document.getElementById('form-financiamento').addEventListener('submit', async (
         return;
     }
 
-    const url = `${API_URL}/Calculadora_financiamento?valor=${valor}&taxa_juros=${taxa_juros}&anos=${ano}&valor_entrada=${valor_entrada}`;
+    const url = `${API_URL}/Calculadora_financiamento?valor=${valor}&taxa_juros=${taxa_juros}&ano=${ano}&valor_entrada=${valor_entrada}`;
 
     try {
         const response = await fetch(url, { method: 'POST' });
@@ -200,7 +195,7 @@ document.getElementById('form-financiamento').addEventListener('submit', async (
     }
 });
 
-// 3. Calculadora de Gastos
+// 3. Calculadora de Gastos (Alinhado com a rota /calculadora_gastos)
 document.getElementById('form-gastos').addEventListener('submit', async (e) => {
     e.preventDefault();
     const salario_liquido = parseValor(document.getElementById('gastos-salario').value);
@@ -262,7 +257,7 @@ document.getElementById('form-gastos').addEventListener('submit', async (e) => {
                     <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                         <strong>Gastos Fixos (50%)</strong>
                         <div style="font-size: 1.3em; color: ${passouDos50 ? '#e74c3c' : '#27ae60'}; font-weight: bold;">${r.gastos_essenciais_percentual.toFixed(2)}%</div>
-                        <small style="color: ${passnowDos50 ? '#c0392b' : '#666'}; display: block; margin-top: 5px; ${passouDos50 ? 'font-weight: bold;' : ''}">${msgFixos}</small>
+                        <small style="color: ${passouDos50 ? '#c0392b' : '#666'}; display: block; margin-top: 5px; ${passouDos50 ? 'font-weight: bold;' : ''}">${msgFixos}</small>
                     </div>
 
                     <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
