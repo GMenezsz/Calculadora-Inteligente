@@ -278,7 +278,7 @@ document.getElementById('form-gastos').addEventListener('submit', async (e) => {
                         <strong>Gastos Mensais (50%)</strong>
                         <div style="font-size: 1.3em; color: #2c3e50; font-weight: bold;">R$ ${valGastosValor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
                         <div style="font-size: 1.1em; color: ${passouDos50 ? '#e74c3c' : '#27ae60'}; font-weight: bold; margin-top: 4px;">
-                            ${valGastosPerc.toFixed(2)}% <span style="font-size: 0.9em; font-weight: normal; color: #555;">(R$ ${valGastosValor.toLocaleString('pt-BR', {minimumFractionDigits: 2})})</span>
+                            ${valGastosPerc.toFixed(2)}%
                         </div>
                         <small style="color: ${passouDos50 ? '#c0392b' : '#666'}; display: block; margin-top: 5px; ${passouDos50 ? 'font-weight: bold;' : ''}">${msgFixos}</small>
                     </div>
