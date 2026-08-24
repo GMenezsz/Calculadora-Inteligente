@@ -101,12 +101,21 @@
                             <input type="text" id="gastos-salario" required placeholder="Ex: 4.000,00 ou 4000">
                         </div>
                         <div class="input-group">
-                            <label>Gastos Fixos:</label>
+                            <label>Gastos Mensais:</label>
                             <input type="text" id="gastos-essenciais" required placeholder="Ex: 2.000,00 ou 2000">
                         </div>
                         <button type="submit" class="btn">Calcular Gastos</button>
                     </form>
-                    <div id="resultado-gastos" class="resultado-box hidden"></div>
+                    
+                    <!-- Caixa de Resultado Atualizada com os IDs corretos -->
+                    <div id="resultado-gastos" class="resultado-box hidden">
+                        <!-- Exemplo de estrutura dos cards internos de resultado -->
+                        <div class="resultado-card">
+                            <h3>Gastos Mensais</h3>
+                            <p id="valor-gastos-fixos">R$ 0,00</p>
+                            <p id="percentual-gastos">0.00%</p>
+                        </div>
+                    </div>
                 </div>
             </section>
 
