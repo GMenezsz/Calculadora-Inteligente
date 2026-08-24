@@ -123,7 +123,6 @@ document.getElementById('form-media').addEventListener('submit', async (e) => {
             box.innerHTML = `<span style="color: red;">Erro: ${mensagemErro}</span>`;
         }
     } catch (error) {
-        console.error("Detalhe do erro de conexão:", error);
         box.innerHTML = `<span style="color: red;">Erro ao conectar com a API!</span>`;
     }
 });
@@ -198,12 +197,11 @@ document.getElementById('form-financiamento').addEventListener('submit', async (
             box.innerHTML = `<span style="color: red;">Erro: ${mensagemErro}</span>`;
         }
     } catch (error) {
-        console.error("Detalhe do erro de conexão:", error);
         box.innerHTML = `<span style="color: red;">Erro ao conectar com a API!</span>`;
     }
 });
 
-// 3. Calculadora de Gastos (Corrigida com parâmetros na URL)
+// 3. Calculadora de Gastos
 document.getElementById('form-gastos').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -290,7 +288,6 @@ document.getElementById('form-gastos').addEventListener('submit', async (e) => {
             box.innerHTML = `<span style="color: red;">Erro: ${mensagemErro}</span>`;
         }
     } catch (error) {
-        console.error("Detalhe do erro de conexão:", error);
         box.innerHTML = `<span style="color: red;">Erro ao conectar com a API!</span>`;
     }
 });
