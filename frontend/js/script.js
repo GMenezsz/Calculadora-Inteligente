@@ -127,7 +127,7 @@ document.getElementById('form-media').addEventListener('submit', async (e) => {
     }
 });
 
-// 2. Calculadora de Financiamento (Com todas as mensagens originais restauradas)
+// 2. Calculadora de Financiamento
 document.getElementById('form-financiamento').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -201,7 +201,7 @@ document.getElementById('form-financiamento').addEventListener('submit', async (
     }
 });
 
-// 3. Calculadora de Gastos (Com todas as mensagens e avisos da regra 50-30-20 restaurados)
+// 3. Calculadora de Gastos (Atualizada para mostrar Valor e Porcentagem)
 document.getElementById('form-gastos').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -266,7 +266,9 @@ document.getElementById('form-gastos').addEventListener('submit', async (e) => {
 
                     <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                         <strong>Gastos Fixos (50%)</strong>
-                        <div style="font-size: 1.3em; color: ${passouDos50 ? '#e74c3c' : '#27ae60'}; font-weight: bold;">${r.gastos_essenciais_percentual.toFixed(2)}%</div>
+                        <!-- Mostra o valor em dinheiro e logo abaixo a porcentagem -->
+                        <div style="font-size: 1.3em; color: #2c3e50; font-weight: bold;">R$ ${r.gastos_essenciais_valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
+                        <div style="font-size: 1.1em; color: ${passouDos50 ? '#e74c3c' : '#27ae60'}; font-weight: bold; margin-top: 4px;">${r.gastos_essenciais_percentual.toFixed(2)}%</div>
                         <small style="color: ${passouDos50 ? '#c0392b' : '#666'}; display: block; margin-top: 5px; ${passouDos50 ? 'font-weight: bold;' : ''}">${msgFixos}</small>
                     </div>
 
