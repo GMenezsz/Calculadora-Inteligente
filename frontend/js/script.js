@@ -201,7 +201,7 @@ document.getElementById('form-financiamento').addEventListener('submit', async (
     }
 });
 
-// 3. Calculadora de Gastos
+// 3. Calculadora de Gastos (Alinhada perfeitamente com a API Python)
 document.getElementById('form-gastos').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -219,6 +219,7 @@ document.getElementById('form-gastos').addEventListener('submit', async (e) => {
         return;
     }
 
+    // Envia os parâmetros via URL exatamente como a função api_gastos(salario_liquido, gastos_essenciais) espera
     const url = `${API_URL}/calculadora_gastos?salario_liquido=${salario_liquido}&gastos_essenciais=${gastos_essenciais}`;
 
     try {
