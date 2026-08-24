@@ -228,8 +228,16 @@ document.getElementById('form-gastos').addEventListener('submit', async (e) => {
         const data = await response.json();
 
         if (response.ok) {
-            const r = data.resultado;
-            const passouDos50 = r.gastos_essenciais_percentual > 50;
+            const r = data.resultado || data;
+
+            // Extrai com segurança lidando com diferentes nomes de chaves possíveis da API
+            const valSalario = Number(r.salario_liquido || salario_liquido);
+            const valGastosValor = Number(r.gastos_essenciais_valor ?? r.gastos_essenciais ?? gastos_essenciais);
+            const valGastosPerc = Number(r.gastos_essenciais_percentual ?? (valGastosValor / valSalario) * 100);
+            const valLazer = Number(r.valor_lazer_30 ?? valSalario * 0.30);
+            const valGuardar = Number(r.valor_guardar_20 ?? valSalario * 0.20);
+
+            const passouDos50 = valGastosPerc > 50;
 
             let contentLazer = "";
             let contentReserva = "";
@@ -247,12 +255,12 @@ document.getElementById('form-gastos').addEventListener('submit', async (e) => {
                 `;
             } else {
                 contentLazer = `
-                    <div style="font-size: 1.3em; color: #2980b9; font-weight: bold;">R$ ${r.valor_lazer_30.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
+                    <div style="font-size: 1.3em; color: #2980b9; font-weight: bold;">R$ ${valLazer.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
                     <small style="color: #666; display: block; margin-top: 5px;">Com gastos fixos abaixo ou igual a 50%, você pode destinar essa quantia para lazer e estilo de vida.</small>
                 `;
 
                 contentReserva = `
-                    <div style="font-size: 1.3em; color: #8e44ad; font-weight: bold;">R$ ${r.valor_guardar_20.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
+                    <div style="font-size: 1.3em; color: #8e44ad; font-weight: bold;">R$ ${valGuardar.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
                     <small style="color: #666; display: block; margin-top: 5px;">Com gastos fixos abaixo ou igual a 50%, mantenha esse valor guardado para construir sua reserva de emergência.</small>
                 `;
             }
@@ -262,14 +270,16 @@ document.getElementById('form-gastos').addEventListener('submit', async (e) => {
                     
                     <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                         <strong>Salário Líquido</strong>
-                        <div style="font-size: 1.3em; color: #2c3e50; font-weight: bold;">R$ ${r.salario_liquido.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
+                        <div style="font-size: 1.3em; color: #2c3e50; font-weight: bold;">R$ ${valSalario.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
                         <small style="color: #666; display: block; margin-top: 5px;">O valor total que você recebe após os descontos básicos.</small>
                     </div>
 
                     <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                         <strong>Gastos Mensais (50%)</strong>
-                        <div style="font-size: 1.3em; color: #2c3e50; font-weight: bold;">R$ ${r.gastos_essenciais_valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                        <div style="font-size: 1.1em; color: ${passouDos50 ? '#e74c3c' : '#27ae60'}; font-weight: bold; margin-top: 4px;">${r.gastos_essenciais_percentual.toFixed(2)}%</div>
+                        <div style="font-size: 1.3em; color: #2c3e50; font-weight: bold;">R$ ${valGastosValor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
+                        <div style="font-size: 1.1em; color: ${passouDos50 ? '#e74c3c' : '#27ae60'}; font-weight: bold; margin-top: 4px;">
+                            ${valGastosPerc.toFixed(2)}% <span style="font-size: 0.9em; font-weight: normal; color: #555;">(R$ ${valGastosValor.toLocaleString('pt-BR', {minimumFractionDigits: 2})})</span>
+                        </div>
                         <small style="color: ${passouDos50 ? '#c0392b' : '#666'}; display: block; margin-top: 5px; ${passouDos50 ? 'font-weight: bold;' : ''}">${msgFixos}</small>
                     </div>
 
