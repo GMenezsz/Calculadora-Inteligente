@@ -74,9 +74,9 @@ function setupSidebar() {
 }
 
 /* =========================================================
-   CONSUMO DA API E REQUISIÇÕES (AJUSTADO PARA QUERY PARAMS)
+   CONSUMO DA API E REQUISIÇÕES (RETORNADO PARA JSON BODY)
 ========================================================= */
-async function callApi(endpoint, paramsObj, resultElementId, successCallback) {
+async function callApi(endpoint, payload, resultElementId, successCallback) {
     const btn = document.activeElement && document.activeElement.tagName === 'BUTTON' ? document.activeElement : null;
     let originalText = '';
     if (btn) {
@@ -86,22 +86,13 @@ async function callApi(endpoint, paramsObj, resultElementId, successCallback) {
     }
 
     try {
-        // Converte o objeto de parâmetros para query string da URL (ex: ?valor1=12&valor2=12...)
-        const filteredParams = {};
-        for (const key in paramsObj) {
-            if (paramsObj[key] !== null && paramsObj[key] !== undefined && paramsObj[key] !== '') {
-                filteredParams[key] = paramsObj[key];
-            }
-        }
-        
-        const queryString = new URLSearchParams(filteredParams).toString();
-        const fullUrl = `${API_BASE_URL}${endpoint}${queryString ? '?' + queryString : ''}`;
-
-        const response = await fetch(fullUrl, {
-            method: 'POST', // Mantém POST se a rota da sua API for POST, mas enviando na URL
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            method: 'POST',
             headers: {
+                'Content-Type': 'application/json',
                 'Accept': 'application/json'
-            }
+            },
+            body: JSON.stringify(payload)
         });
 
         const data = await response.json();
@@ -116,7 +107,7 @@ async function callApi(endpoint, paramsObj, resultElementId, successCallback) {
         }
 
     } catch (error) {
-        let errorMsg = 'Erro de conexão com a API. O servidor no Render pode estar iniciando, tente novamente em instantes.';
+        let errorMsg = 'Erro de conexão com a API. O servidor no Render pode estar iniciando ou bloqueou a requisição.';
         if (typeof error === 'string') {
             errorMsg = error;
         } else if (error && error.message) {
@@ -139,11 +130,11 @@ async function callApi(endpoint, paramsObj, resultElementId, successCallback) {
 
 // 1. Regra de Três
 function calcularRegraTres() {
-    const v1 = parseBrazilianNumber(document.getElementById('rt-v1').value);
-    const v2 = parseBrazilianNumber(document.getElementById('rt-v2').value);
-    const v3 = parseBrazilianNumber(document.getElementById('rt-v3').value);
+    const valor1 = parseBrazilianNumber(document.getElementById('rt-v1').value);
+    const valor2 = parseBrazilianNumber(document.getElementById('rt-v2').value);
+    const valor3 = parseBrazilianNumber(document.getElementById('rt-v3').value);
 
-    callApi('/calculadora_regra_tres', { valor1: v1, valor2: v2, valor3: v3 }, null, data => {
+    callApi('/calculadora_regra_tres', { valor1, valor2, valor3 }, null, data => {
         const resBox = document.getElementById('rt-result');
         const resVal = document.getElementById('rt-val');
         resBox.classList.add('active', 'success');
@@ -310,7 +301,7 @@ function calcularEletrodomesticos() {
 
 // 10. Autônomos
 function calcularAutonomos() {
-    const custos_operacionais = parseBrazilianNumber(document.getElementById('aut-custos').value);
+    const custos_operacionais = [parseBrazilianNumber(document.getElementById('aut-custos').value)];
     const horas_trabalho = parseBrazilianNumber(document.getElementById('aut-horas').value);
     const valor_hora = parseBrazilianNumber(document.getElementById('aut-valorhora').value);
     const margem_lucro = parseBrazilianNumber(document.getElementById('aut-margem').value);
