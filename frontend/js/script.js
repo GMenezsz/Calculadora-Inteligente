@@ -10,14 +10,10 @@ function parseBrazilianNumber(value) {
     if (typeof value === 'number') return value;
     if (!value || typeof value !== 'string') return 0;
     
-    // Remove R$, espaços e converte formato brasileiro (1.234,56) para float (1234.56)
     let cleanVal = value.replace(/R\$|\s/g, '');
-    
-    // Se possui ponto e vírgula (ex: 1.234,56)
     if (cleanVal.includes(',') && cleanVal.includes('.')) {
         cleanVal = cleanVal.replace(/\./g, '').replace(',', '.');
     } else if (cleanVal.includes(',')) {
-        // Se possui apenas vírgula (ex: 1234,56 ou 1234,5)
         cleanVal = cleanVal.replace(',', '.');
     }
     
@@ -57,7 +53,6 @@ function navigateTo(viewId) {
         window.scrollTo(0, 0);
     }
     
-    // Atualizar classe active no menu lateral
     document.querySelectorAll('.sidebar-sublist a').forEach(link => {
         link.classList.remove('active');
         if (link.getAttribute('data-target') === viewId) {
@@ -79,9 +74,9 @@ function setupSidebar() {
 }
 
 /* =========================================================
-   CONSUMO DA API E REQUISIÇÕES
+   CONSUMO DA API E REQUISIÇÕES (AJUSTADO PARA QUERY PARAMS)
 ========================================================= */
-async function callApi(endpoint, payload, resultElementId, successCallback) {
+async function callApi(endpoint, paramsObj, resultElementId, successCallback) {
     const btn = document.activeElement && document.activeElement.tagName === 'BUTTON' ? document.activeElement : null;
     let originalText = '';
     if (btn) {
@@ -91,20 +86,29 @@ async function callApi(endpoint, payload, resultElementId, successCallback) {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-            method: 'POST',
+        // Converte o objeto de parâmetros para query string da URL (ex: ?valor1=12&valor2=12...)
+        const filteredParams = {};
+        for (const key in paramsObj) {
+            if (paramsObj[key] !== null && paramsObj[key] !== undefined && paramsObj[key] !== '') {
+                filteredParams[key] = paramsObj[key];
+            }
+        }
+        
+        const queryString = new URLSearchParams(filteredParams).toString();
+        const fullUrl = `${API_BASE_URL}${endpoint}${queryString ? '?' + queryString : ''}`;
+
+        const response = await fetch(fullUrl, {
+            method: 'POST', // Mantém POST se a rota da sua API for POST, mas enviando na URL
             headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
+                'Accept': 'application/json'
+            }
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-            // Se a API retornar um objeto detalhado de erro, extrai a mensagem ou converte
             const errorDetail = data.detail || data.message || 'Erro ao processar o cálculo.';
-            throw new Error(typeof errorDetail === 'object' ? JSON.stringify(errorDetail) : errorDetail);
+            throw new Error(typeof errorDetail === 'object' ? JSON.stringify(errorDetail, null, 2) : errorDetail);
         }
 
         if (successCallback) {
@@ -112,7 +116,6 @@ async function callApi(endpoint, payload, resultElementId, successCallback) {
         }
 
     } catch (error) {
-        // Blindagem total contra objetos no alerta
         let errorMsg = 'Erro de conexão com a API. O servidor no Render pode estar iniciando, tente novamente em instantes.';
         if (typeof error === 'string') {
             errorMsg = error;
@@ -307,7 +310,7 @@ function calcularEletrodomesticos() {
 
 // 10. Autônomos
 function calcularAutonomos() {
-    const custos_operacionais = [parseBrazilianNumber(document.getElementById('aut-custos').value)];
+    const custos_operacionais = parseBrazilianNumber(document.getElementById('aut-custos').value);
     const horas_trabalho = parseBrazilianNumber(document.getElementById('aut-horas').value);
     const valor_hora = parseBrazilianNumber(document.getElementById('aut-valorhora').value);
     const margem_lucro = parseBrazilianNumber(document.getElementById('aut-margem').value);
@@ -356,7 +359,6 @@ function installPWA() {
 document.addEventListener('DOMContentLoaded', () => {
     setupSidebar();
 
-    // Registrar Service Worker para PWA
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js')
             .then(() => console.log('Service Worker registrado com sucesso.'))
