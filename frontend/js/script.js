@@ -274,3 +274,255 @@ async function calcularCombustivel() {
             boxId: "comb-result",
             valId: "comb-val",
             expId: "comb-exp",
+            valorTexto: formatarBRL(r.custo_total),
+            explicacaoTexto: `Combustível necessário: ${formatarNumero(r.combustivel_necessario)} litros`,
+        });
+    } catch (erro) {
+        exibirErro("comb-result", "comb-val", "comb-exp", erro);
+    }
+}
+
+// =========================================================
+// 4) MOTORISTA AUTÔNOMO
+// =========================================================
+async function calcularMotorista() {
+    const distancia = parseNumeroBR(getValor("mot-dist"));
+    const ganhos = parseNumeroBR(getValor("mot-ganhos"));
+    const consumo_veiculo = parseNumeroBR(getValor("mot-consumo"));
+    const valor_combustivel = parseNumeroBR(getValor("mot-valor"));
+
+    const alimentacaoRaw = getValor("mot-alim");
+    const cafeRaw = getValor("mot-cafe");
+    const outrosRaw = getValor("mot-outros");
+
+    const alimentacao = alimentacaoRaw.trim() === "" ? null : parseNumeroBR(alimentacaoRaw);
+    const cafe = cafeRaw.trim() === "" ? null : parseNumeroBR(cafeRaw);
+    const outros_gastos = outrosRaw.trim() === "" ? null : parseNumeroBR(outrosRaw);
+
+    if ([distancia, ganhos, consumo_veiculo, valor_combustivel].some((v) => isNaN(v))) {
+        exibirErro("mot-result", "mot-val", "mot-exp", new Error("Preencha distância, ganhos, consumo e valor do combustível."));
+        return;
+    }
+
+    try {
+        const data = await chamarAPI("/calculadora_motorista", {
+            distancia,
+            ganhos,
+            consumo_veiculo,
+            valor_combustivel,
+            alimentacao,
+            cafe,
+            outros_gastos,
+        });
+        const r = data.resultado;
+        exibirResultado({
+            boxId: "mot-result",
+            valId: "mot-val",
+            expId: "mot-exp",
+            valorTexto: `Lucro líquido: ${formatarBRL(r.lucro_liquido)}`,
+            explicacaoTexto: `${data.desempenho} • Ganho por km: ${formatarBRL(r.ganhos_por_km)} • Combustível: ${formatarBRL(r.custo_total_combustivel)}`,
+            tipo: r.lucro_liquido < 0 ? "danger" : "success",
+        });
+    } catch (erro) {
+        exibirErro("mot-result", "mot-val", "mot-exp", erro);
+    }
+}
+
+// =========================================================
+// 5) ÁLCOOL OU GASOLINA
+// =========================================================
+async function calcularAlcoolGasolina() {
+    const valor_alcool = parseNumeroBR(getValor("alg-alcool"));
+    const valor_gasolina = parseNumeroBR(getValor("alg-gasolina"));
+
+    if ([valor_alcool, valor_gasolina].some((v) => isNaN(v))) {
+        exibirErro("alg-result", "alg-val", null, new Error("Preencha os preços do álcool e da gasolina."));
+        return;
+    }
+
+    try {
+        const data = await chamarAPI("/calculadora_alcool_gasolina", {
+            valor_alcool,
+            valor_gasolina,
+        });
+        const r = data.resultado;
+        exibirResultado({
+            boxId: "alg-result",
+            valId: "alg-val",
+            valorTexto: `Vale mais a pena: ${r.melhor_opcao} (${formatarNumero(r.resultado)}%)`,
+        });
+    } catch (erro) {
+        exibirErro("alg-result", "alg-val", null, erro);
+    }
+}
+
+// =========================================================
+// 6) GASTOS (REGRA 50/30/20)
+// =========================================================
+async function calcularGastos() {
+    const salario_liquido = parseNumeroBR(getValor("gas-salario"));
+    const gastos_essenciais = parseNumeroBR(getValor("gas-essenciais"));
+
+    if ([salario_liquido, gastos_essenciais].some((v) => isNaN(v))) {
+        exibirErro("gas-result", "gas-val", "gas-exp", new Error("Preencha o salário líquido e os gastos essenciais."));
+        return;
+    }
+
+    try {
+        const data = await chamarAPI("/calculadora_gastos", {
+            salario_liquido,
+            gastos_essenciais,
+        });
+        const r = data.resultado;
+        const explicacao =
+            `Gastos essenciais: ${formatarBRL(r.gastos_essenciais_valor)} (${formatarNumero(r.gastos_essenciais_percentual)}%)\n` +
+            `Lazer (30%): ${formatarBRL(r.valor_lazer_30)}\n` +
+            `Guardar (20%): ${formatarBRL(r.valor_guardar_20)}`;
+
+        exibirResultado({
+            boxId: "gas-result",
+            valId: "gas-val",
+            expId: "gas-exp",
+            valorTexto: r.porcentagem_dentro_limite ? "Dentro do limite recomendado (até 50%)" : "Acima do limite recomendado (50%)",
+            explicacaoTexto: explicacao,
+            tipo: r.porcentagem_dentro_limite ? "success" : "danger",
+        });
+    } catch (erro) {
+        exibirErro("gas-result", "gas-val", "gas-exp", erro);
+    }
+}
+
+// =========================================================
+// 7) FINANCIAMENTO
+// =========================================================
+async function calcularFinanciamento() {
+    const valor = parseNumeroBR(getValor("fin-valor"));
+    const taxa_juros = parseNumeroBR(getValor("fin-juros"));
+    const ano = parseNumeroBR(getValor("fin-ano"));
+    const entradaRaw = getValor("fin-entrada");
+    const valor_entrada = entradaRaw.trim() === "" ? 0 : parseNumeroBR(entradaRaw);
+
+    if ([valor, taxa_juros, ano].some((v) => isNaN(v)) || isNaN(valor_entrada)) {
+        exibirErro("fin-result", "fin-val", null, new Error("Preencha valor do produto, taxa de juros e prazo em anos."));
+        return;
+    }
+
+    try {
+        const data = await chamarAPI("/calculadora_financiamento", {
+            valor,
+            taxa_juros,
+            ano,
+            valor_entrada,
+        });
+        const r = data.resultado;
+        exibirResultado({
+            boxId: "fin-result",
+            valId: "fin-val",
+            valorTexto: `Parcela mensal: ${formatarBRL(r["Parcela mensal"])}`,
+        });
+    } catch (erro) {
+        exibirErro("fin-result", "fin-val", null, erro);
+    }
+}
+
+// =========================================================
+// 8) JUROS COMPOSTOS
+// =========================================================
+async function calcularJurosCompostos() {
+    const valor_inicial = parseNumeroBR(getValor("jc-inicial"));
+    const aporte_mensal = parseNumeroBR(getValor("jc-aporte"));
+    const taxa_juros = parseNumeroBR(getValor("jc-taxa"));
+    const periodo_anos = parseNumeroBR(getValor("jc-periodo"));
+
+    if ([valor_inicial, aporte_mensal, taxa_juros, periodo_anos].some((v) => isNaN(v))) {
+        exibirErro("jc-result", "jc-val", null, new Error("Preencha todos os campos com valores válidos."));
+        return;
+    }
+
+    try {
+        const data = await chamarAPI("/calculadora_juros_compostos", {
+            valor_inicial,
+            aporte_mensal,
+            taxa_juros,
+            periodo_anos: Math.trunc(periodo_anos),
+        });
+        // A API retorna um objeto "resultado" aninhado duas vezes: data.resultado.resultado
+        const r = (data.resultado && data.resultado.resultado) ? data.resultado.resultado : data.resultado;
+        exibirResultado({
+            boxId: "jc-result",
+            valId: "jc-val",
+            valorTexto: `Montante final: ${formatarBRL(r.montante_final)}`,
+        });
+    } catch (erro) {
+        exibirErro("jc-result", "jc-val", null, erro);
+    }
+}
+
+// =========================================================
+// 9) ELETRODOMÉSTICOS
+// =========================================================
+async function calcularEletrodomesticos() {
+    const potencia = parseNumeroBR(getValor("el-potencia"));
+    const horas_uso = parseNumeroBR(getValor("el-horas"));
+    const dias_uso = parseNumeroBR(getValor("el-dias"));
+    const valor_kwh = parseNumeroBR(getValor("el-kwh"));
+
+    if ([potencia, horas_uso, dias_uso, valor_kwh].some((v) => isNaN(v))) {
+        exibirErro("el-result", "el-val", null, new Error("Preencha todos os campos com valores válidos."));
+        return;
+    }
+
+    try {
+        const data = await chamarAPI("/calculadora_eletrodomesticos", {
+            potencia: Math.trunc(potencia),
+            horas_uso,
+            dias_uso: Math.trunc(dias_uso),
+            valor_kwh,
+        });
+        const r = data.resultado;
+        exibirResultado({
+            boxId: "el-result",
+            valId: "el-val",
+            valorTexto: formatarBRL(r["custo_total_R$"]),
+        });
+    } catch (erro) {
+        exibirErro("el-result", "el-val", null, erro);
+    }
+}
+
+// =========================================================
+// 10) AUTÔNOMOS
+// =========================================================
+async function calcularAutonomos() {
+    const custoOperacional = parseNumeroBR(getValor("aut-custos"));
+    const horas_trabalho = parseNumeroBR(getValor("aut-horas"));
+    const valor_hora = parseNumeroBR(getValor("aut-valorhora"));
+    const margem_lucro = parseNumeroBR(getValor("aut-margem"));
+    const taxaMaqRaw = getValor("aut-taxamaq");
+    const taxa_maquininha = taxaMaqRaw.trim() === "" ? null : parseNumeroBR(taxaMaqRaw);
+
+    if ([custoOperacional, horas_trabalho, valor_hora, margem_lucro].some((v) => isNaN(v))) {
+        exibirErro("aut-result", "aut-val", null, new Error("Preencha custos, horas, valor da hora e margem de lucro."));
+        return;
+    }
+
+    try {
+        const data = await chamarAPI("/calculadora_autonomos", {
+            custos_operacionais: [custoOperacional],
+            horas_trabalho,
+            valor_hora,
+            margem_lucro,
+            taxa_maquininha,
+            deslocamento: null,
+            custo_insumos: null,
+        });
+        const r = data.resultado;
+        exibirResultado({
+            boxId: "aut-result",
+            valId: "aut-val",
+            valorTexto: `Preço sugerido: ${formatarBRL(r["preco_sugerido_R$"])}`,
+        });
+    } catch (erro) {
+        exibirErro("aut-result", "aut-val", null, erro);
+    }
+}
