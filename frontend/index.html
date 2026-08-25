@@ -3,125 +3,748 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadoras Inteligentes</title>
+    <title>Calculadora Inteligente</title>
+
+    <!-- FAVICON DO SITE -->
+    <!-- Coloque o ícone da aba do navegador em: frontend/imagens/favicon.png -->
+    <link rel="icon" type="image/png" href="imagens/logo.png">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+
+    <!-- CSS Separado -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-    <!-- Menu Lateral Estilo Calcula Geral -->
-    <aside class="sidebar">
-        <div class="logo-area">
-            <h2>Calculadora Inteligente</h2>
+    <!-- ================= HEADER ================= -->
+    <header>
+        <div class="header-logo" onclick="navigateTo('view-home')">
+            <!--
+            =========================================================
+            ÍCONE DO CANVA (LOGO)
+            Substitua pelo arquivo correspondente localizado em:
+            frontend/imagens/logo.png
+            =========================================================
+            -->
+            <img src="imagens/logo.png" alt="Logo Calculadora Inteligente" onerror="this.style.display='none'">
+            <h1>Calculadora Inteligente</h1>
         </div>
-        <nav class="menu">
-            <div class="menu-category">🎓 EDUCAÇÃO</div>
-            <ul>
-                <li><a href="#" class="nav-link active" data-target="media-section">Média Escolar</a></li>
-            </ul>
-            <div class="menu-category">💰 FINANÇAS</div>
-            <ul>
-                <li><a href="#" class="nav-link" data-target="financiamento-section">Financiamento</a></li>
-                <li><a href="#" class="nav-link" data-target="gastos-section">Calculadora de Gastos</a></li>
-            </ul>
+        <nav class="header-nav">
+            <a href="#" onclick="navigateTo('view-home')">🏠 Início</a>
+            <a href="#" onclick="navigateTo('view-privacy')">Privacidade</a>
+            <a href="#" onclick="navigateTo('view-terms')">Termos de Uso</a>
+            <button id="pwa-btn" class="pwa-install-btn" style="display:none;" onclick="installPWA()">Donwload Android / iOS</button>
         </nav>
-    </aside>
+    </header>
 
-    <!-- Conteúdo Principal -->
-    <main class="main-content">
-        <header class="top-header">
-            <h1>Calculadoras Brasileiras</h1>
-        </header>
+    <!-- ================= APP CONTAINER ================= -->
+    <div class="app-container">
 
-        <div class="container">
-            
-            <!-- SEÇÃO: MÉDIA ESCOLAR -->
-            <section id="media-section" class="calc-section active">
-                <div class="card">
-                    <h2>Calculadora de Média</h2>
-                    <form id="form-media">
-                        <div class="input-group">
-                            <label>Prova Parcial:</label>
-                            <input type="text" id="media-parcial" required placeholder="Ex: 7,0 ou 7.0">
-                        </div>
-                        <div class="input-group">
-                            <label>Prova Global:</label>
-                            <input type="text" id="media-global" required placeholder="Ex: 8,5 ou 8.5">
-                        </div>
-                        
-                        <div class="input-group">
-                            <label>Trabalhos (separados por vírgula):</label>
-                            <input type="text" id="media-trabalhos" placeholder="Ex: 8.0, 9,5, 10">
-                        </div>
+        <!-- ================= MENU LATERAL ================= -->
+        <aside>
+            <!-- Categoria Educação -->
+            <div class="sidebar-category">
+                <div class="sidebar-category-header">
+                    <span>EDUCAÇÃO</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="sidebar-sublist">
+                    <a href="#" onclick="navigateTo('view-regra-tres')" data-target="view-regra-tres">
+                        <!-- IMAGEM DO CANVA: frontend/imagens/icone-regra-tres.png -->
+                        <span>= Regra de três</span>
+                    </a>
+                    <a href="#" onclick="navigateTo('view-media')" data-target="view-media">
+                        <!-- IMAGEM DO CANVA: frontend/imagens/icone-media.png -->
+                        <span>📊 Média</span>
+                    </a>
+                </div>
+            </div>
 
-                        <div class="input-group">
-                            <label>Pontos Extras (separados por vírgula):</label>
-                            <input type="text" id="media-extras" placeholder="Ex: 2,0">
-                        </div>
+            <!-- Categoria Transporte -->
+            <div class="sidebar-category">
+                <div class="sidebar-category-header">
+                    <span>TRANSPORTE</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="sidebar-sublist">
+                    <a href="#" onclick="navigateTo('view-combustivel')" data-target="view-combustivel">
+                        <!-- IMAGEM DO CANVA: frontend/imagens/icone-combustivel.png -->
+                        <span>⛽ Combustível</span>
+                    </a>
+                    <a href="#" onclick="navigateTo('view-motorista')" data-target="view-motorista">
+                        <!-- IMAGEM DO CANVA: frontend/imagens/icone-motorista.png -->
+                        <span>👤 Motorista Autônomo</span>
+                    </a>
+                    <a href="#" onclick="navigateTo('view-alcool-gasolina')" data-target="view-alcool-gasolina">
+                        <!-- IMAGEM DO CANVA: frontend/imagens/icone-alcool-gasolina.png -->
+                        <span>🍃 Álcool ou Gasolina</span>
+                    </a>
+                </div>
+            </div>
 
-                        <button type="submit" class="btn">Calcular Média</button>
-                    </form>
-                    <div id="resultado-media" class="resultado-box hidden"></div>
+            <!-- Categoria Finanças -->
+            <div class="sidebar-category">
+                <div class="sidebar-category-header">
+                    <span>FINANÇAS</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="sidebar-sublist">
+                    <a href="#" onclick="navigateTo('view-gastos')" data-target="view-gastos">
+                        <!-- IMAGEM DO CANVA: frontend/imagens/icone-gastos.png -->
+                        <span>📉 Gastos</span>
+                    </a>
+                    <a href="#" onclick="navigateTo('view-financiamento')" data-target="view-financiamento">
+                        <!-- IMAGEM DO CANVA: frontend/imagens/icone-financiamento.png -->
+                        <span>🤝 Financiamento</span>
+                    </a>
+                    <a href="#" onclick="navigateTo('view-juros-compostos')" data-target="view-juros-compostos">
+                        <!-- IMAGEM DO CANVA: frontend/imagens/icone-juros.png -->
+                        <span>📈 Juros Compostos</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Categoria Eletrodoméstico -->
+            <div class="sidebar-category">
+                <div class="sidebar-category-header">
+                    <span>ELETRODOMÉSTICO</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="sidebar-sublist">
+                    <a href="#" onclick="navigateTo('view-eletrodomesticos')" data-target="view-eletrodomesticos">
+                        <!-- IMAGEM DO CANVA: frontend/imagens/icone-eletro.png -->
+                        <span>⚡ Eletrodoméstico</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Categoria Autônomo -->
+            <div class="sidebar-category">
+                <div class="sidebar-category-header">
+                    <span>AUTÔNOMO</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="sidebar-sublist">
+                    <a href="#" onclick="navigateTo('view-autonomos')" data-target="view-autonomos">
+                        <!-- IMAGEM DO CANVA: frontend/imagens/icone-autonomo.png -->
+                        <span>🛠️ Autônomo</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ================= MAIN CONTENT ================= -->
+        <main>
+
+            <!-- 1. PÁGINA INICIAL (Home) -->
+            <section id="view-home" class="view-section active">
+                <div class="card-container home-hero">
+                    <h2>Calculadora Inteligente</h2>
+                    <p>Suas ferramentas de cálculo em um só lugar. Selecione uma calculadora no menu para começar.</p>
+                </div>
+
+                <div class="card-container">
+                    <div class="category-group">
+                        <h3>🎓 EDUCAÇÃO</h3>
+                        <div class="grid-cards">
+                            <div class="calc-card" onclick="navigateTo('view-regra-tres')">
+                                <!-- IMAGEM DO CANVA: frontend/imagens/icone-regra-tres.png -->
+                                <h4>Regra de três</h4>
+                            </div>
+                            <div class="calc-card" onclick="navigateTo('view-media')">
+                                <!-- IMAGEM DO CANVA: frontend/imagens/icone-media.png -->
+                                <h4>Média</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="category-group">
+                        <h3>🚗 TRANSPORTE</h3>
+                        <div class="grid-cards">
+                            <div class="calc-card" onclick="navigateTo('view-combustivel')">
+                                <!-- IMAGEM DO CANVA: frontend/imagens/icone-combustivel.png -->
+                                <h4>Combustível</h4>
+                            </div>
+                            <div class="calc-card" onclick="navigateTo('view-motorista')">
+                                <!-- IMAGEM DO CANVA: frontend/imagens/icone-motorista.png -->
+                                <h4>Motorista Autônomo</h4>
+                            </div>
+                            <div class="calc-card" onclick="navigateTo('view-alcool-gasolina')">
+                                <!-- IMAGEM DO CANVA: frontend/imagens/icone-alcool-gasolina.png -->
+                                <h4>Álcool ou Gasolina</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="category-group">
+                        <h3>🏠 CASA & ELETRODOMÉSTICO</h3>
+                        <div class="grid-cards">
+                            <div class="calc-card" onclick="navigateTo('view-eletrodomesticos')">
+                                <!-- IMAGEM DO CANVA: frontend/imagens/icone-eletro.png -->
+                                <h4>Eletrodoméstico</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="category-group">
+                        <h3>💰 FINANÇAS</h3>
+                        <div class="grid-cards">
+                            <div class="calc-card" onclick="navigateTo('view-gastos')">
+                                <!-- IMAGEM DO CANVA: frontend/imagens/icone-gastos.png -->
+                                <h4>Gastos</h4>
+                            </div>
+                            <div class="calc-card" onclick="navigateTo('view-financiamento')">
+                                <!-- IMAGEM DO CANVA: frontend/imagens/icone-financiamento.png -->
+                                <h4>Financiamento</h4>
+                            </div>
+                            <div class="calc-card" onclick="navigateTo('view-juros-compostos')">
+                                <!-- IMAGEM DO CANVA: frontend/imagens/icone-juros.png -->
+                                <h4>Juros Compostos</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="category-group">
+                        <h3>🛠️ AUTÔNOMO</h3>
+                        <div class="grid-cards">
+                            <div class="calc-card" onclick="navigateTo('view-autonomos')">
+                                <!-- IMAGEM DO CANVA: frontend/imagens/icone-autonomo.png -->
+                                <h4>Autônomo</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-container">
+                    <h3 style="margin-bottom: 15px; color: var(--primary-color);">Calculadora Online Gratuita</h3>
+                    <p style="color: #555; line-height: 1.6;">
+                        A <strong>Calculadora Inteligente</strong> é uma plataforma 100% gratuita desenvolvida para resolver problemas práticos e dores financeiras do dia a dia, seja para profissionais autônomos, prestadores de serviços, motoristas ou qualquer pessoa que precise de respostas rápidas e exatas sem complicação.
+                    </p>
                 </div>
             </section>
 
-            <!-- SEÇÃO: FINANCIAMENTO -->
-            <section id="financiamento-section" class="calc-section">
-                <div class="card">
-                    <h2>Calculadora de Financiamento</h2>
-                    <form id="form-financiamento">
-                        <div class="input-group">
-                            <label>Valor do Produto:</label>
-                            <input type="text" id="fin-valor" required placeholder="Ex: 10.000,00 ou 10000">
+            <!-- 2. REGRA DE TRÊS (Layout Exclusivo) -->
+            <section id="view-regra-tres" class="view-section">
+                <div class="breadcrumb">
+                    <span>Educação</span> > <span class="current">Calculadora de Regra de Três</span>
+                </div>
+                <div class="card-container">
+                    <div class="calc-header-title">
+                        <h2>Calculadora de Regra de Três</h2>
+                        <p>Resolva proporções de forma imediata com validação contra valores zerados.</p>
+                    </div>
+
+                    <div class="regra-tres-wrapper">
+                        <div class="regra-tres-row">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="regra-tres-label">Primeira grandeza</label>
+                                <input type="text" id="rt-v1" placeholder="Ex: 10">
+                            </div>
+                            <span class="regra-tres-connector">está para</span>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="regra-tres-label">Segunda grandeza</label>
+                                <input type="text" id="rt-v2" placeholder="Ex: 20">
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <label>Taxa de Juros Mensal (%):</label>
-                            <input type="text" id="fin-juros" required placeholder="Ex: 1.5 ou 1,5">
+
+                        <div class="regra-tres-connector">assim como</div>
+
+                        <div class="regra-tres-row">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="regra-tres-label">Terceira grandeza</label>
+                                <input type="text" id="rt-v3" placeholder="Ex: 30">
+                            </div>
+                            <span class="regra-tres-connector">está para</span>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="regra-tres-label">Valor desconhecido</label>
+                                <input type="text" disabled placeholder="X" style="background:#eef2f7;">
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <label>Prazo (Anos):</label>
-                            <input type="text" id="fin-ano" required placeholder="Ex: 5">
-                        </div>
-                        <div class="input-group">
-                            <label>Valor de Entrada (Opcional):</label>
-                            <input type="text" id="fin-entrada" placeholder="Ex: 1.000,00 ou 1000">
-                        </div>
-                        <button type="submit" class="btn">Calcular Financiamento</button>
-                    </form>
-                    <div id="resultado-financiamento" class="resultado-box hidden"></div>
+                    </div>
+
+                    <button class="btn-calculate" onclick="calcularRegraTres()">Calcular</button>
+
+                    <div id="rt-result" class="result-box">
+                        <h3>Resultado:</h3>
+                        <div id="rt-val" class="result-value">X = 0</div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Para que serve e onde é usada</h3>
+                    <p>A regra de três serve para descobrir um valor desconhecido na matemática. Você usa ela quando conhece três números que formam uma proporção com esse quarto número que falta.</p>
+                    <ul>
+                        <li><strong>Calcular preços:</strong> Saber quanto custam mais itens se você sabe o preço de um.</li>
+                        <li><strong>Ajustar receitas:</strong> Mudar a quantidade de ingredientes se você vai fazer mais ou menos comida.</li>
+                        <li><strong>Medir tempo e velocidade:</strong> Saber quanto tempo leva uma viagem.</li>
+                        <li><strong>Trabalhar com proporções:</strong> Resolver contas do dia a dia ou da escola de forma rápida.</li>
+                    </ul>
                 </div>
             </section>
 
-            <!-- SEÇÃO: CALCULADORA DE GASTOS -->
-            <section id="gastos-section" class="calc-section">
-                <div class="card">
-                    <h2>Calculadora de Gastos</h2>
-                    <form id="form-gastos">
-                        <div class="input-group">
-                            <label>Salário Líquido:</label>
-                            <input type="text" id="gastos-salario" required placeholder="Ex: 4.000,00 ou 4000">
+            <!-- 3. MÉDIA -->
+            <section id="view-media" class="view-section">
+                <div class="breadcrumb">
+                    <span>Educação</span> > <span class="current">Calculadora de Média</span>
+                </div>
+                <div class="card-container">
+                    <div class="calc-header-title">
+                        <h2>Calculadora de Média</h2>
+                        <p>Acompanhe suas notas e descubra sua situação acadêmica instantaneamente.</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Prova parcial</label>
+                            <input type="text" id="med-parcial" placeholder="Ex: 70">
                         </div>
-                        <div class="input-group">
-                            <label>Gastos Mensais:</label>
-                            <input type="text" id="gastos-essenciais" required placeholder="Ex: 2.000,00 ou 2000">
+                        <div class="form-group">
+                            <label>Prova global</label>
+                            <input type="text" id="med-global" placeholder="Ex: 65">
                         </div>
-                        <button type="submit" class="btn">Calcular Gastos</button>
-                    </form>
-                    
-                    <!-- Caixa de Resultado Atualizada com os IDs corretos -->
-                    <div id="resultado-gastos" class="resultado-box hidden">
-                        <!-- Exemplo de estrutura dos cards internos de resultado -->
-                        <div class="resultado-card">
-                            <h3>Gastos Mensais</h3>
-                            <p id="valor-gastos-fixos">R$ 0,00</p>
-                            <p id="percentual-gastos">0.00%</p>
+                        <div class="form-group">
+                            <label>Trabalhos <span class="optional">(separados por vírgula)</span></label>
+                            <input type="text" id="med-trabalhos" placeholder="Ex: 80, 90">
                         </div>
+                        <div class="form-group">
+                            <label>Pontos extras <span class="optional">(separados por vírgula)</span></label>
+                            <input type="text" id="med-extras" placeholder="Ex: 5">
+                        </div>
+                    </div>
+
+                    <button class="btn-calculate" onclick="calcularMedia()">Calcular</button>
+
+                    <div id="med-result" class="result-box">
+                        <h3>Situação Acadêmica</h3>
+                        <div id="med-val" class="result-value">0</div>
+                        <div id="med-exp" class="result-explanation"></div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Para que serve e onde é usada</h3>
+                    <p>Uma calculadora de média de alunos serve para simplificar e automatizar o cálculo das notas de um estudante ao longo de um período letivo.</p>
+                    <ul>
+                        <li><strong>Descobrir a nota final:</strong> Soma notas de provas, trabalhos e atividades dividindo pela média aritmética ou ponderada.</li>
+                        <li><strong>Verificar aprovação:</strong> Compara automaticamente o resultado com a média mínima exigida.</li>
+                        <li><strong>Economizar tempo:</strong> Evita erros manuais e falsas impressões sobre a situação escolar.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 4. COMBUSTÍVEL -->
+            <section id="view-combustivel" class="view-section">
+                <div class="breadcrumb">
+                    <span>Transporte</span> > <span class="current">Calculadora de Combustível</span>
+                </div>
+                <div class="card-container">
+                    <div class="calc-header-title">
+                        <h2>Calculadora de Combustível</h2>
+                        <p>Estime o custo total de combustível para qualquer viagem.</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Distância percorrida (km)</label>
+                            <input type="text" id="comb-dist" placeholder="Ex: 350">
+                        </div>
+                        <div class="form-group">
+                            <label>Consumo médio do veículo (km/l)</label>
+                            <input type="text" id="comb-consumo" placeholder="Ex: 12.5">
+                        </div>
+                        <div class="form-group">
+                            <label>Preço do combustível (R$)</label>
+                            <input type="text" id="comb-valor" placeholder="Ex: 6,24 ou R$ 6,24">
+                        </div>
+                    </div>
+
+                    <button class="btn-calculate" onclick="calcularCombustivel()">Calcular</button>
+
+                    <div id="comb-result" class="result-box">
+                        <h3>Custo Estimado da Viagem</h3>
+                        <div id="comb-val" class="result-value">R$ 0,00</div>
+                        <div id="comb-exp" class="result-explanation"></div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Para que serve e onde é usada</h3>
+                    <p>Ajuda a planejar viagens e calcular custos exatos com combustíveis, permitindo melhor controle do orçamento de transporte e viagens a trabalho ou passeio.</p>
+                </div>
+            </section>
+
+            <!-- 5. MOTORISTA AUTÔNOMO -->
+            <section id="view-motorista" class="view-section">
+                <div class="breadcrumb">
+                    <span>Transporte</span> > <span class="current">Calculadora para Motorista</span>
+                </div>
+                <div class="card-container">
+                    <div class="calc-header-title">
+                        <h2>Calculadora para Motorista Autônomo</h2>
+                        <p>Analise seus ganhos, custos de combustível e despesas diárias.</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Distância (km)</label>
+                            <input type="text" id="mot-dist" placeholder="Ex: 200">
+                        </div>
+                        <div class="form-group">
+                            <label>Ganhos brutos (R$)</label>
+                            <input type="text" id="mot-ganhos" placeholder="Ex: 450,00">
+                        </div>
+                        <div class="form-group">
+                            <label>Consumo do veículo (km/l)</label>
+                            <input type="text" id="mot-consumo" placeholder="Ex: 10">
+                        </div>
+                        <div class="form-group">
+                            <label>Valor do combustível (R$)</label>
+                            <input type="text" id="mot-valor" placeholder="Ex: 5,89">
+                        </div>
+                        <div class="form-group">
+                            <label>Alimentação <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="mot-alim" placeholder="Ex: 30,00">
+                        </div>
+                        <div class="form-group">
+                            <label>Café <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="mot-cafe" placeholder="Ex: 7,50">
+                        </div>
+                        <div class="form-group">
+                            <label>Outros gastos <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="mot-outros" placeholder="Ex: 20,00">
+                        </div>
+                    </div>
+
+                    <button class="btn-calculate" onclick="calcularMotorista()">Calcular</button>
+
+                    <div id="mot-result" class="result-box">
+                        <h3>Resultado da Corrida / Viagem</h3>
+                        <div id="mot-val" class="result-value">R$ 0,00</div>
+                        <div id="mot-exp" class="result-explanation"></div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Para que serve e onde é usada</h3>
+                    <p>Desenvolvida especificamente para motoristas de aplicativos e entregadores calcularem a rentabilidade real descontando custos operacionais e refeições.</p>
+                </div>
+            </section>
+
+            <!-- 6. ÁLCOOL OU GASOLINA -->
+            <section id="view-alcool-gasolina" class="view-section">
+                <div class="breadcrumb">
+                    <span>Transporte</span> > <span class="current">Álcool ou Gasolina</span>
+                </div>
+                <div class="card-container">
+                    <div class="calc-header-title">
+                        <h2>Calculadora Álcool ou Gasolina</h2>
+                        <p>Descubra qual combustível é mais vantajoso abastecer no momento.</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Preço do Álcool (R$)</label>
+                            <input type="text" id="alg-alcool" placeholder="Ex: 4,29">
+                        </div>
+                        <div class="form-group">
+                            <label>Preço da Gasolina (R$)</label>
+                            <input type="text" id="alg-gasolina" placeholder="Ex: 6,24">
+                        </div>
+                    </div>
+
+                    <button class="btn-calculate" onclick="calcularAlcoolGasolina()">Calcular</button>
+
+                    <div id="alg-result" class="result-box">
+                        <h3>Combustível Recomendado</h3>
+                        <div id="alg-val" class="result-value">-</div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Para que serve e onde é usada</h3>
+                    <p>Compara os preços dos combustíveis considerando a proporção de rendimento médio para indicar qual compensa mais no posto.</p>
+                </div>
+            </section>
+
+            <!-- 7. GASTOS (50/30/20) -->
+            <section id="view-gastos" class="view-section">
+                <div class="breadcrumb">
+                    <span>Finanças</span> > <span class="current">Calculadora de Gastos</span>
+                </div>
+                <div class="card-container">
+                    <div class="calc-header-title">
+                        <h2>Calculadora de Gastos (Regra 50/30/20)</h2>
+                        <p>Organize suas finanças dividindo seus gastos entre essenciais, estilo de vida e investimentos.</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Salário líquido (R$)</label>
+                            <input type="text" id="gas-salario" placeholder="Ex: 4.500,00">
+                        </div>
+                        <div class="form-group">
+                            <label>Gastos essenciais (R$)</label>
+                            <input type="text" id="gas-essenciais" placeholder="Ex: 2.000,00">
+                        </div>
+                    </div>
+
+                    <button class="btn-calculate" onclick="calcularGastos()">Calcular</button>
+
+                    <div id="gas-result" class="result-box">
+                        <h3>Distribuição do Orçamento</h3>
+                        <div id="gas-val" class="result-value">-</div>
+                        <div id="gas-exp" class="result-explanation" style="white-space: pre-line;"></div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Para que serve e onde é usada</h3>
+                    <p>Aplica a famosa regra financeira 50/30/20 para garantir equilíbrio entre necessidades, desejos e o futuro financeiro.</p>
+                </div>
+            </section>
+
+            <!-- 8. FINANCIAMENTO -->
+            <section id="view-financiamento" class="view-section">
+                <div class="breadcrumb">
+                    <span>Finanças</span> > <span class="current">Calculadora de Financiamento</span>
+                </div>
+                <div class="card-container">
+                    <div class="calc-header-title">
+                        <h2>Calculadora de Financiamento</h2>
+                        <p>Simule parcelas e juros de financiamentos de veículos, imóveis ou empréstimos.</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Valor do produto (R$)</label>
+                            <input type="text" id="fin-valor" placeholder="Ex: 100.000,00">
+                        </div>
+                        <div class="form-group">
+                            <label>Taxa de juros (% ao ano)</label>
+                            <input type="text" id="fin-juros" placeholder="Ex: 12">
+                        </div>
+                        <div class="form-group">
+                            <label>Prazo em anos</label>
+                            <input type="text" id="fin-ano" placeholder="Ex: 5">
+                        </div>
+                        <div class="form-group">
+                            <label>Valor da entrada <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="fin-entrada" placeholder="Ex: 20.000,00">
+                        </div>
+                    </div>
+
+                    <button class="btn-calculate" onclick="calcularFinanciamento()">Calcular</button>
+
+                    <div id="fin-result" class="result-box">
+                        <h3>Resultado da Simulação</h3>
+                        <div id="fin-val" class="result-value">-</div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Para que serve e onde é usada</h3>
+                    <p>Auxilia na tomada de decisão de compras parceladas, calculando o impacto dos juros no valor final.</p>
+                </div>
+            </section>
+
+            <!-- 9. JUROS COMPOSTOS -->
+            <section id="view-juros-compostos" class="view-section">
+                <div class="breadcrumb">
+                    <span>Finanças</span> > <span class="current">Calculadora de Juros Compostos</span>
+                </div>
+                <div class="card-container">
+                    <div class="calc-header-title">
+                        <h2>Calculadora de Juros Compostos</h2>
+                        <p>Veja seu dinheiro crescer ao longo do tempo com aportes e rentabilidade.</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Valor inicial (R$)</label>
+                            <input type="text" id="jc-inicial" placeholder="Ex: 1.000,00">
+                        </div>
+                        <div class="form-group">
+                            <label>Aporte mensal (R$)</label>
+                            <input type="text" id="jc-aporte" placeholder="Ex: 500,00">
+                        </div>
+                        <div class="form-group">
+                            <label>Taxa de juros (% ao ano)</label>
+                            <input type="text" id="jc-taxa" placeholder="Ex: 10">
+                        </div>
+                        <div class="form-group">
+                            <label>Período (anos)</label>
+                            <input type="text" id="jc-periodo" placeholder="Ex: 10">
+                        </div>
+                    </div>
+
+                    <button class="btn-calculate" onclick="calcularJurosCompostos()">Calcular</button>
+
+                    <div id="jc-result" class="result-box">
+                        <h3>Montante Acumulado</h3>
+                        <div id="jc-val" class="result-value">-</div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Para que serve e onde é usada</h3>
+                    <p>Fundamental para planejamento de investimentos de longo prazo, permitindo entender o poder dos juros sobre juros.</p>
+                </div>
+            </section>
+
+            <!-- 10. ELETRODOMÉSTICOS -->
+            <section id="view-eletrodomesticos" class="view-section">
+                <div class="breadcrumb">
+                    <span>Eletrodoméstico</span> > <span class="current">Calculadora de Eletrodomésticos</span>
+                </div>
+                <div class="card-container">
+                    <div class="calc-header-title">
+                        <h2>Calculadora de Eletrodomésticos</h2>
+                        <p>Descubra quanto um aparelho gasta na sua conta de luz.</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Potência (Watts)</label>
+                            <input type="text" id="el-potencia" placeholder="Ex: 1200">
+                        </div>
+                        <div class="form-group">
+                            <label>Horas de uso por dia</label>
+                            <input type="text" id="el-horas" placeholder="Ex: 4">
+                        </div>
+                        <div class="form-group">
+                            <label>Dias de uso</label>
+                            <input type="text" id="el-dias" placeholder="Ex: 30">
+                        </div>
+                        <div class="form-group">
+                            <label>Valor do kWh (R$)</label>
+                            <input type="text" id="el-kwh" placeholder="Ex: 0,85">
+                        </div>
+                    </div>
+
+                    <button class="btn-calculate" onclick="calcularEletrodomesticos()">Calcular</button>
+
+                    <div id="el-result" class="result-box">
+                        <h3>Custo de Energia</h3>
+                        <div id="el-val" class="result-value">R$ 0,00</div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Para que serve e onde é usada</h3>
+                    <p>Ajuda a identificar vilões do consumo elétrico residencial e planejar economia na fatura de energia.</p>
+                </div>
+            </section>
+
+            <!-- 11. AUTÔNOMOS -->
+            <section id="view-autonomos" class="view-section">
+                <div class="breadcrumb">
+                    <span>Autônomo</span> > <span class="current">Calculadora para Autônomos</span>
+                </div>
+                <div class="card-container">
+                    <div class="calc-header-title">
+                        <h2>Calculadora para Autônomos</h2>
+                        <p>Precifique seus serviços cobrindo custos operacionais, insumos e margem de lucro.</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Custos operacionais (R$)</label>
+                            <input type="text" id="aut-custos" placeholder="Ex: 500,00">
+                        </div>
+                        <div class="form-group">
+                            <label>Horas de trabalho</label>
+                            <input type="text" id="aut-horas" placeholder="Ex: 160">
+                        </div>
+                        <div class="form-group">
+                            <label>Valor da hora (R$)</label>
+                            <input type="text" id="aut-valorhora" placeholder="Ex: 50,00">
+                        </div>
+                        <div class="form-group">
+                            <label>Margem de lucro (%)</label>
+                            <input type="text" id="aut-margem" placeholder="Ex: 30">
+                        </div>
+                        <div class="form-group">
+                            <label>Taxa da maquininha (%) <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="aut-taxamaq" placeholder="Ex: 3.5">
+                        </div>
+                    </div>
+
+                    <button class="btn-calculate" onclick="calcularAutonomos()">Calcular</button>
+
+                    <div id="aut-result" class="result-box">
+                        <h3>Preço Sugerido / Faturamento</h3>
+                        <div id="aut-val" class="result-value">-</div>
+                    </div>
+                </div>
+
+                    <div class="info-section">
+                    <h3>Para que serve e onde é usada</h3>
+                    <p>Elimina o "chute" na hora de cobrar por um serviço ou produto, garantindo que todos os custos e taxas sejam pagos.</p>
+                </div>
+            </section>
+
+            <!-- 12. POLÍTICA DE PRIVACIDADE -->
+            <section id="view-privacy" class="view-section">
+                <div class="breadcrumb">
+                    <span>Início</span> > <span class="current">Política de Privacidade</span>
+                </div>
+                <div class="card-container">
+                    <div class="calc-header-title">
+                        <h2>Política de Privacidade</h2>
+                        <p>Sua privacidade é nossa prioridade. Todos os cálculos são processados com total segurança.</p>
+                    </div>
+                    <div class="info-section" style="margin-top:0;">
+                        <p>A Calculadora Inteligente foi desenvolvida com foco na proteção dos dados dos usuários. Nenhuma informação financeira ou pessoal inserida nas calculadoras é armazenada em servidores externos de forma maliciosa.</p>
+                        <p>Utilizamos tecnologias modernas de PWA (Progressive Web App) para garantir que sua experiência seja ágil e segura diretamente no seu dispositivo.</p>
                     </div>
                 </div>
             </section>
 
-        </div>
-    </main>
+            <!-- 13. TERMOS DE USO -->
+            <section id="view-terms" class="view-section">
+                <div class="breadcrumb">
+                    <span>Início</span> > <span class="current">Termos de Uso</span>
+                </div>
+                <div class="card-container">
+                    <div class="calc-header-title">
+                        <h2>Termos de Uso</h2>
+                        <p>Condições gerais para utilização das ferramentas da Calculadora Inteligente.</p>
+                    </div>
+                    <div class="info-section" style="margin-top:0;">
+                        <p>1. As ferramentas disponibilizadas têm caráter informativo e de simulação financeira, educacional e prática.</p>
+                        <p>2. A plataforma é 100% gratuita para uso pessoal e profissional.</p>
+                        <p>3. Os cálculos dependem diretamente dos dados fornecidos pelo usuário e processados pela API de backend.</p>
+                    </div>
+                </div>
+            </section>
 
+        </main>
+    </div>
+
+    <!-- ================= FOOTER ================= -->
+    <footer>
+        <div>
+            <!--
+            =========================================================
+            ÍCONE DO CANVA (RODAPÉ)
+            Substitua pelo arquivo correspondente localizado em:
+            frontend/imagens/logo.png
+            =========================================================
+            -->
+            <img src="imagens/logo.png" alt="Logo" style="width:20px; vertical-align:middle; margin-right:5px;" onerror="this.style.display='none'">
+            © 2026 Calculadora Inteligente. Todos os direitos reservados.
+        </div>
+        <div class="footer-links">
+            <a href="#" onclick="navigateTo('view-home')">Início</a>
+            <a href="#" onclick="navigateTo('view-privacy')">Privacidade</a>
+            <a href="#" onclick="navigateTo('view-terms')">Termos de Uso</a>
+            <a href="#" onclick="installPWA()">Download</a>
+        </div>
+    </footer>
+
+    <!-- JavaScript Separado -->
     <script src="js/script.js"></script>
 </body>
 </html>
