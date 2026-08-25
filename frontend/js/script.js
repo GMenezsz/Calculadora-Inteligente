@@ -110,7 +110,9 @@ async function callApi(endpoint, payload, resultElementId, successCallback) {
         }
 
     } catch (error) {
-        alert(error.message || 'Erro de conexão com a API. O servidor no Render pode estar iniciando, tente novamente em instantes.');
+        // Tratado para evitar exibir [object Object] em alertas de erro
+        const errorMsg = typeof error === 'string' ? error : (error.message || 'Erro de conexão com a API. O servidor no Render pode estar iniciando, tente novamente em instantes.');
+        alert(errorMsg);
     } finally {
         if (btn) {
             btn.innerText = originalText;
@@ -239,7 +241,6 @@ function calcularGastos() {
 
         resBox.classList.add('active', 'success');
         resVal.innerText = `Orçamento Analisado`;
-        // Ajustado para puxar propriedades limpas caso venham em formato de objeto
         resExp.innerText = data.mensagem || data.resultado || JSON.stringify(data, null, 2);
     });
 }
@@ -257,7 +258,6 @@ function calcularFinanciamento() {
         const resVal = document.getElementById('fin-val');
 
         resBox.classList.add('active', 'success');
-        // Pega a prestação ou resultado de forma tratada
         const valorFinal = data.resultado || data.prestacao_mensal || data.valor || 0;
         resVal.innerText = `Prestação Mensal: ${formatCurrencyBRL(valorFinal)}`;
     });
