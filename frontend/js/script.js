@@ -147,10 +147,10 @@ async function callApi(endpoint, dataObj, successCallback) {
 }
 
 /* =========================================================
-   CONFIGURAÇÃO DAS CALCULADORAS (Adequadas às suas APIs)
+   CONFIGURAÇÃO DAS CALCULADORAS
 ========================================================= */
 
-// 1. Regra de Três
+// 1. Regra de Três (Lendo o objeto retornado pela sua função Python)
 function calcularRegraTres() {
     const valor1 = parseBrazilianNumber(document.getElementById('rt-v1').value);
     const valor2 = parseBrazilianNumber(document.getElementById('rt-v2').value);
@@ -160,7 +160,10 @@ function calcularRegraTres() {
         const resBox = document.getElementById('rt-result');
         const resVal = document.getElementById('rt-val');
         resBox.classList.add('active', 'success');
-        resVal.innerText = `X = ${formatNumberBR(data.resultado, 4)}`;
+        
+        // Extrai a chave exata que o seu back-end retorna
+        const valorFinal = data.resultado.valor_encontrada;
+        resVal.innerText = `X = ${formatNumberBR(valorFinal, 4)}`;
     });
 }
 
