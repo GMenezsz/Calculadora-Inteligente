@@ -1,292 +1,276 @@
-// ============================================================
-// api.js — Cliente JS para a API "Calculadora Inteligente"
-// Base URL: https://calculadora-inteligente-api.onrender.com
-// ============================================================
+// =========================================================
+// script.js — Calculadora Inteligente
+// Navegação SPA + Sidebar + Consumo da API de backend
+// =========================================================
 
 const API_BASE_URL = "https://calculadora-inteligente-api.onrender.com";
 
-/**
- * Função genérica para chamar a API via POST.
- * @param {string} endpoint - caminho do endpoint (ex: "/calculadora_regra_tres")
- * @param {object} dados - corpo da requisição (será convertido em JSON)
- * @returns {Promise<object>} resultado retornado pela API
- */
+// ---------------------------------------------------------
+// HELPERS GERAIS
+// ---------------------------------------------------------
+
+/** Chama a API via POST enviando JSON e tratando erros no padrão da API. */
 async function chamarAPI(endpoint, dados) {
-  try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dados),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dados),
     });
 
-    const data = await response.json();
+    let data;
+    try {
+        data = await response.json();
+    } catch (e) {
+        data = null;
+    }
 
     if (!response.ok) {
-      // A API retorna { detail: "Valores inválidos." } em erros
-      const mensagem = data?.detail || `Erro ${response.status} ao chamar ${endpoint}`;
-      throw new Error(mensagem);
+        const mensagem = (data && data.detail) || `Erro ao chamar ${endpoint} (status ${response.status})`;
+        throw new Error(mensagem);
     }
 
     return data;
-  } catch (erro) {
-    console.error(`Erro em chamarAPI(${endpoint}):`, erro);
-    throw erro;
-  }
 }
 
-// ------------------------------------------------------------
-// 1) Regra de Três
-// ------------------------------------------------------------
-async function calcularRegraTres(valor1, valor2, valor3) {
-  return chamarAPI("/calculadora_regra_tres", { valor1, valor2, valor3 });
+/**
+ * Converte string numérica no formato brasileiro (1.234,56 / 1234,56 / 1234.56 / "R$ 1.234,56")
+ * para um Number do JS. Retorna NaN se não for possível interpretar.
+ */
+function parseNumeroBR(valor) {
+    if (valor === null || valor === undefined) return NaN;
+    let str = String(valor).trim();
+    if (str === "") return NaN;
+
+    // Remove tudo que não seja dígito, vírgula, ponto ou sinal de menos
+    str = str.replace(/[^\d,.\-]/g, "");
+
+    const temVirgula = str.includes(",");
+    const temPonto = str.includes(".");
+
+    if (temVirgula && temPonto) {
+        // Formato "1.234,56" -> remove pontos (milhar) e troca vírgula por ponto (decimal)
+        str = str.replace(/\./g, "").replace(",", ".");
+    } else if (temVirgula) {
+        // Formato "1234,56" -> troca vírgula por ponto
+        str = str.replace(",", ".");
+    }
+    // Se só tem ponto, já está em formato válido para o JS (ex: "12.5")
+
+    const numero = parseFloat(str);
+    return numero;
 }
 
-// ------------------------------------------------------------
-// 2) Motorista de App
-// ------------------------------------------------------------
-async function calcularMotorista({
-  distancia,
-  ganhos,
-  consumo_veiculo,
-  valor_combustivel,
-  alimentacao = null,
-  cafe = null,
-  outros_gastos = null,
-}) {
-  return chamarAPI("/calculadora_motorista", {
-    distancia,
-    ganhos,
-    consumo_veiculo,
-    valor_combustivel,
-    alimentacao,
-    cafe,
-    outros_gastos,
-  });
+/** Converte uma string "80, 90, 100" em uma lista de números, ignorando itens vazios. */
+function parseListaBR(valor) {
+    if (!valor || String(valor).trim() === "") return [];
+    return String(valor)
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item !== "")
+        .map((item) => parseNumeroBR(item))
+        .filter((num) => !isNaN(num));
 }
 
-// ------------------------------------------------------------
-// 3) Média Acadêmica
-// ------------------------------------------------------------
-async function calcularMedia({
-  prova_parcial,
-  prova_global,
-  trabalhos = null,
-  pontos_extras = null,
-}) {
-  return chamarAPI("/calculadora_media", {
-    prova_parcial,
-    prova_global,
-    trabalhos,
-    pontos_extras,
-  });
+/** Formata um número como moeda brasileira (R$). */
+function formatarBRL(valor) {
+    if (typeof valor !== "number" || isNaN(valor)) return "R$ 0,00";
+    return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-// ------------------------------------------------------------
-// 4) Juros Compostos
-// ------------------------------------------------------------
-async function calcularJurosCompostos({
-  valor_inicial,
-  aporte_mensal,
-  taxa_juros,
-  periodo_anos,
-}) {
-  return chamarAPI("/calculadora_juros_compostos", {
-    valor_inicial,
-    aporte_mensal,
-    taxa_juros,
-    periodo_anos,
-  });
+/** Formata um número simples no padrão brasileiro (2 casas decimais). */
+function formatarNumero(valor, casas = 2) {
+    if (typeof valor !== "number" || isNaN(valor)) return "0";
+    return valor.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
 }
 
-// ------------------------------------------------------------
-// 5) Orçamento 50/30/20
-// ------------------------------------------------------------
-async function calcularGastos(salario_liquido, gastos_essenciais) {
-  return chamarAPI("/calculadora_gastos", {
-    salario_liquido,
-    gastos_essenciais,
-  });
+/** Exibe o resultado (ou erro) em uma result-box padrão. */
+function exibirResultado({ boxId, valId, expId = null, valorTexto, explicacaoTexto = "", tipo = "success" }) {
+    const box = document.getElementById(boxId);
+    const val = document.getElementById(valId);
+    const exp = expId ? document.getElementById(expId) : null;
+
+    if (!box || !val) return;
+
+    val.textContent = valorTexto;
+    if (exp) exp.textContent = explicacaoTexto;
+
+    box.classList.remove("success", "danger");
+    box.classList.add("active");
+    if (tipo === "danger") {
+        box.classList.add("danger");
+    } else {
+        box.classList.add("success");
+    }
 }
 
-// ------------------------------------------------------------
-// 6) Financiamento
-// ------------------------------------------------------------
-async function calcularFinanciamento({
-  valor,
-  taxa_juros,
-  ano,
-  valor_entrada = 0,
-}) {
-  return chamarAPI("/calculadora_financiamento", {
-    valor,
-    taxa_juros,
-    ano,
-    valor_entrada,
-  });
+/** Exibe uma mensagem de erro amigável em uma result-box. */
+function exibirErro(boxId, valId, expId, erro) {
+    exibirResultado({
+        boxId,
+        valId,
+        expId,
+        valorTexto: "Ocorreu um erro",
+        explicacaoTexto: erro && erro.message ? erro.message : "Não foi possível calcular. Verifique os valores informados.",
+        tipo: "danger",
+    });
 }
 
-// ------------------------------------------------------------
-// 7) Eletrodomésticos (consumo de energia)
-// ------------------------------------------------------------
-async function calcularEletrodomesticos({
-  potencia,
-  horas_uso,
-  dias_uso,
-  valor_kwh,
-}) {
-  return chamarAPI("/calculadora_eletrodomesticos", {
-    potencia,
-    horas_uso,
-    dias_uso,
-    valor_kwh,
-  });
+function getValor(id) {
+    const el = document.getElementById(id);
+    return el ? el.value : "";
 }
 
-// ------------------------------------------------------------
-// 8) Combustível (consumo de viagem)
-// ------------------------------------------------------------
-async function calcularCombustivel({
-  distancia,
-  consumo_medio_kml,
-  valor_combustivel,
-}) {
-  return chamarAPI("/calculadora_combustivel", {
-    distancia,
-    consumo_medio_kml,
-    valor_combustivel,
-  });
+// ---------------------------------------------------------
+// NAVEGAÇÃO (SPA)
+// ---------------------------------------------------------
+
+function navigateTo(viewId) {
+    const secoes = document.querySelectorAll(".view-section");
+    secoes.forEach((secao) => secao.classList.remove("active"));
+
+    const alvo = document.getElementById(viewId);
+    if (alvo) {
+        alvo.classList.add("active");
+    }
+
+    // Atualiza item ativo na sidebar
+    const links = document.querySelectorAll(".sidebar-sublist a");
+    links.forEach((link) => {
+        if (link.getAttribute("data-target") === viewId) {
+            link.classList.add("active");
+        } else {
+            link.classList.remove("active");
+        }
+    });
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// ------------------------------------------------------------
-// 9) Autônomos (precificação de serviços)
-// ------------------------------------------------------------
-async function calcularAutonomos({
-  custos_operacionais,
-  horas_trabalho,
-  valor_hora,
-  margem_lucro,
-  taxa_maquininha = null,
-  deslocamento = null,
-  custo_insumos = null,
-}) {
-  return chamarAPI("/calculadora_autonomos", {
-    custos_operacionais,
-    horas_trabalho,
-    valor_hora,
-    margem_lucro,
-    taxa_maquininha,
-    deslocamento,
-    custo_insumos,
-  });
+// Toggle das categorias da sidebar (abrir/fechar)
+document.addEventListener("DOMContentLoaded", () => {
+    const headers = document.querySelectorAll(".sidebar-category-header");
+    headers.forEach((header) => {
+        header.addEventListener("click", () => {
+            const categoria = header.closest(".sidebar-category");
+            if (categoria) categoria.classList.toggle("closed");
+        });
+    });
+});
+
+// ---------------------------------------------------------
+// PWA — Instalação
+// ---------------------------------------------------------
+
+let deferredPrompt = null;
+
+window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    deferredPrompt = event;
+    const btn = document.getElementById("pwa-btn");
+    if (btn) btn.style.display = "inline-block";
+});
+
+function installPWA() {
+    if (!deferredPrompt) {
+        alert("Para instalar, use a opção 'Adicionar à tela inicial' ou 'Instalar app' do seu navegador.");
+        return;
+    }
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.finally(() => {
+        deferredPrompt = null;
+        const btn = document.getElementById("pwa-btn");
+        if (btn) btn.style.display = "none";
+    });
 }
 
-// ------------------------------------------------------------
-// 10) Álcool ou Gasolina
-// ------------------------------------------------------------
-async function calcularAlcoolGasolina(valor_alcool, valor_gasolina) {
-  return chamarAPI("/calculadora_alcool_gasolina", {
-    valor_alcool,
-    valor_gasolina,
-  });
+window.addEventListener("appinstalled", () => {
+    const btn = document.getElementById("pwa-btn");
+    if (btn) btn.style.display = "none";
+    deferredPrompt = null;
+});
+
+// =========================================================
+// 1) REGRA DE TRÊS
+// =========================================================
+async function calcularRegraTres() {
+    const valor1 = parseNumeroBR(getValor("rt-v1"));
+    const valor2 = parseNumeroBR(getValor("rt-v2"));
+    const valor3 = parseNumeroBR(getValor("rt-v3"));
+
+    if ([valor1, valor2, valor3].some((v) => isNaN(v))) {
+        exibirErro("rt-result", "rt-val", null, new Error("Preencha os três campos com valores numéricos."));
+        return;
+    }
+
+    try {
+        const data = await chamarAPI("/calculadora_regra_tres", { valor1, valor2, valor3 });
+        const x = data.resultado.valor_encontrada;
+        exibirResultado({
+            boxId: "rt-result",
+            valId: "rt-val",
+            valorTexto: `X = ${formatarNumero(x)}`,
+        });
+    } catch (erro) {
+        exibirErro("rt-result", "rt-val", null, erro);
+    }
 }
 
-// ============================================================
-// Exemplos de uso (descomente para testar no console/navegador)
-// ============================================================
+// =========================================================
+// 2) MÉDIA
+// =========================================================
+async function calcularMedia() {
+    const prova_parcial = parseNumeroBR(getValor("med-parcial"));
+    const prova_global = parseNumeroBR(getValor("med-global"));
+    const trabalhos = parseListaBR(getValor("med-trabalhos"));
+    const pontos_extras = parseListaBR(getValor("med-extras"));
 
-// calcularRegraTres(2, 4, 10)
-//   .then((res) => console.log("Regra de 3:", res))
-//   .catch((err) => alert(err.message));
+    if (isNaN(prova_parcial) || isNaN(prova_global)) {
+        exibirErro("med-result", "med-val", "med-exp", new Error("Preencha a prova parcial e a prova global."));
+        return;
+    }
 
-// calcularMotorista({
-//   distancia: 120,
-//   ganhos: 250,
-//   consumo_veiculo: 12,
-//   valor_combustivel: 5.9,
-//   alimentacao: 20,
-//   cafe: 10,
-// })
-//   .then((res) => console.log("Motorista:", res))
-//   .catch((err) => alert(err.message));
+    try {
+        const data = await chamarAPI("/calculadora_media", {
+            prova_parcial,
+            prova_global,
+            trabalhos: trabalhos.length ? trabalhos : null,
+            pontos_extras: pontos_extras.length ? pontos_extras : null,
+        });
+        const r = data.resultado;
+        exibirResultado({
+            boxId: "med-result",
+            valId: "med-val",
+            expId: "med-exp",
+            valorTexto: `Nota final: ${formatarNumero(r.nota_final)}`,
+            explicacaoTexto: r.situacao,
+            tipo: r.situacao && r.situacao.toLowerCase().includes("reprovado") ? "danger" : "success",
+        });
+    } catch (erro) {
+        exibirErro("med-result", "med-val", "med-exp", erro);
+    }
+}
 
-// calcularMedia({
-//   prova_parcial: 7,
-//   prova_global: 8,
-//   trabalhos: [1, 1.5],
-//   pontos_extras: [0.5],
-// })
-//   .then((res) => console.log("Média:", res))
-//   .catch((err) => alert(err.message));
+// =========================================================
+// 3) COMBUSTÍVEL
+// =========================================================
+async function calcularCombustivel() {
+    const distancia = parseNumeroBR(getValor("comb-dist"));
+    const consumo_medio_kml = parseNumeroBR(getValor("comb-consumo"));
+    const valor_combustivel = parseNumeroBR(getValor("comb-valor"));
 
-// calcularJurosCompostos({
-//   valor_inicial: 1000,
-//   aporte_mensal: 200,
-//   taxa_juros: 12,
-//   periodo_anos: 5,
-// })
-//   .then((res) => console.log("Juros compostos:", res))
-//   .catch((err) => alert(err.message));
+    if ([distancia, consumo_medio_kml, valor_combustivel].some((v) => isNaN(v))) {
+        exibirErro("comb-result", "comb-val", "comb-exp", new Error("Preencha todos os campos com valores válidos."));
+        return;
+    }
 
-// calcularGastos(3000, 1500)
-//   .then((res) => console.log("Orçamento 50/30/20:", res))
-//   .catch((err) => alert(err.message));
-
-// calcularFinanciamento({
-//   valor: 30000,
-//   taxa_juros: 1.5,
-//   ano: 4,
-//   valor_entrada: 5000,
-// })
-//   .then((res) => console.log("Financiamento:", res))
-//   .catch((err) => alert(err.message));
-
-// calcularEletrodomesticos({
-//   potencia: 1500,
-//   horas_uso: 2.5,
-//   dias_uso: 30,
-//   valor_kwh: 0.75,
-// })
-//   .then((res) => console.log("Eletrodomésticos:", res))
-//   .catch((err) => alert(err.message));
-
-// calcularCombustivel({
-//   distancia: 300,
-//   consumo_medio_kml: 12,
-//   valor_combustivel: 5.9,
-// })
-//   .then((res) => console.log("Combustível:", res))
-//   .catch((err) => alert(err.message));
-
-// calcularAutonomos({
-//   custos_operacionais: [100, 50],
-//   horas_trabalho: 8,
-//   valor_hora: 30,
-//   margem_lucro: 20,
-//   taxa_maquininha: 3,
-//   deslocamento: [15],
-//   custo_insumos: [40],
-// })
-//   .then((res) => console.log("Autônomos:", res))
-//   .catch((err) => alert(err.message));
-
-// calcularAlcoolGasolina(4.5, 6.2)
-//   .then((res) => console.log("Álcool x Gasolina:", res))
-//   .catch((err) => alert(err.message));
-
-// Se estiver usando módulos ES (import/export), descomente abaixo:
-// export {
-//   API_BASE_URL,
-//   chamarAPI,
-//   calcularRegraTres,
-//   calcularMotorista,
-//   calcularMedia,
-//   calcularJurosCompostos,
-//   calcularGastos,
-//   calcularFinanciamento,
-//   calcularEletrodomesticos,
-//   calcularCombustivel,
-//   calcularAutonomos,
-//   calcularAlcoolGasolina,
-// };
+    try {
+        const data = await chamarAPI("/calculadora_combustivel", {
+            distancia,
+            consumo_medio_kml,
+            valor_combustivel,
+        });
+        const r = data.resultado;
+        exibirResultado({
+            boxId: "comb-result",
+            valId: "comb-val",
+            expId: "comb-exp",
