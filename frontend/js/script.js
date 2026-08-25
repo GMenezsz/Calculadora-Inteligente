@@ -102,7 +102,9 @@ async function callApi(endpoint, payload, resultElementId, successCallback) {
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.detail || 'Erro ao processar o cálculo. Verifique os valores.');
+            // Se a API retornar um objeto detalhado de erro, extrai a mensagem ou converte
+            const errorDetail = data.detail || data.message || 'Erro ao processar o cálculo.';
+            throw new Error(typeof errorDetail === 'object' ? JSON.stringify(errorDetail) : errorDetail);
         }
 
         if (successCallback) {
@@ -110,8 +112,15 @@ async function callApi(endpoint, payload, resultElementId, successCallback) {
         }
 
     } catch (error) {
-        // Tratado para evitar exibir [object Object] em alertas de erro
-        const errorMsg = typeof error === 'string' ? error : (error.message || 'Erro de conexão com a API. O servidor no Render pode estar iniciando, tente novamente em instantes.');
+        // Blindagem total contra objetos no alerta
+        let errorMsg = 'Erro de conexão com a API. O servidor no Render pode estar iniciando, tente novamente em instantes.';
+        if (typeof error === 'string') {
+            errorMsg = error;
+        } else if (error && error.message) {
+            errorMsg = error.message;
+        } else if (error) {
+            errorMsg = JSON.stringify(error);
+        }
         alert(errorMsg);
     } finally {
         if (btn) {
