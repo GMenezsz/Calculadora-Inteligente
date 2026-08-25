@@ -239,11 +239,12 @@ function calcularGastos() {
 
         resBox.classList.add('active', 'success');
         resVal.innerText = `Orçamento Analisado`;
-        resExp.innerText = JSON.stringify(data, null, 2);
+        // Ajustado para puxar propriedades limpas caso venham em formato de objeto
+        resExp.innerText = data.mensagem || data.resultado || JSON.stringify(data, null, 2);
     });
 }
 
-// 7. Financiamento (Rota corrigida para minúsculas)
+// 7. Financiamento
 function calcularFinanciamento() {
     const valor = parseBrazilianNumber(document.getElementById('fin-valor').value);
     const taxa_juros = parseBrazilianNumber(document.getElementById('fin-juros').value);
@@ -256,7 +257,9 @@ function calcularFinanciamento() {
         const resVal = document.getElementById('fin-val');
 
         resBox.classList.add('active', 'success');
-        resVal.innerText = `Resultado: ${JSON.stringify(data.resultado || data)}`;
+        // Pega a prestação ou resultado de forma tratada
+        const valorFinal = data.resultado || data.prestacao_mensal || data.valor || 0;
+        resVal.innerText = `Prestação Mensal: ${formatCurrencyBRL(valorFinal)}`;
     });
 }
 
@@ -272,7 +275,8 @@ function calcularJurosCompostos() {
         const resVal = document.getElementById('jc-val');
 
         resBox.classList.add('active', 'success');
-        resVal.innerText = `Montante Final: ${JSON.stringify(data.resultado || data)}`;
+        const montanteFinal = data.resultado || data.montante_final || data.valor || 0;
+        resVal.innerText = `Montante Final: ${formatCurrencyBRL(montanteFinal)}`;
     });
 }
 
@@ -307,7 +311,8 @@ function calcularAutonomos() {
         const resVal = document.getElementById('aut-val');
 
         resBox.classList.add('active', 'success');
-        resVal.innerText = `Resultado: ${JSON.stringify(data.resultado || data)}`;
+        const valorHoraFinal = data.resultado || data.valor_hora_sugerido || data.valor || 0;
+        resVal.innerText = `Valor Hora Sugerido: ${formatCurrencyBRL(valorHoraFinal)}`;
     });
 }
 
