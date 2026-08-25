@@ -21,6 +21,12 @@ function parseBrazilianNumber(value) {
     return isNaN(parsed) ? 0 : parsed;
 }
 
+function parseOptionalNumber(value) {
+    if (value === null || value === undefined || value === '') return null;
+    const parsed = parseBrazilianNumber(value);
+    return isNaN(parsed) ? null : parsed;
+}
+
 function formatCurrencyBRL(value) {
     const num = parseFloat(value);
     if (isNaN(num)) return 'R$ 0,00';
@@ -76,12 +82,12 @@ function setupSidebar() {
 /* =========================================================
    CONSUMO DA API (ENVIANDO COMO JSON BODY)
 ========================================================= */
-async function callApi(endpoint, dataObj, resultElementId, successCallback) {
+async function callApi(endpoint, dataObj, successCallback) {
     const btn = document.activeElement && document.activeElement.tagName === 'BUTTON' ? document.activeElement : null;
     let originalText = '';
     if (btn) {
         originalText = btn.innerText;
-        btn.innerText = 'Acordando servidor... (aguarde)';
+        btn.innerText = 'Processando... (aguarde)';
         btn.disabled = true;
     }
 
@@ -111,8 +117,13 @@ async function callApi(endpoint, dataObj, resultElementId, successCallback) {
         }
 
         if (!response.ok) {
-            const errorDetail = data.detail || data.message || 'Erro ao processar o cálculo.';
-            throw new Error(typeof errorDetail === 'object' ? JSON.stringify(errorDetail, null, 2) : errorDetail);
+            let errorDetail = data.detail || data.message || 'Erro ao processar o cálculo.';
+            if (Array.isArray(errorDetail)) {
+                errorDetail = errorDetail.map(err => `${err.loc ? err.loc.join('.') : 'Campo'}: ${err.msg}`).join(' | ');
+            } else if (typeof errorDetail === 'object') {
+                errorDetail = JSON.stringify(errorDetail);
+            }
+            throw new Error(errorDetail);
         }
 
         if (successCallback) {
@@ -125,8 +136,6 @@ async function callApi(endpoint, dataObj, resultElementId, successCallback) {
             errorMsg = error;
         } else if (error && error.message) {
             errorMsg = error.message;
-        } else if (error) {
-            errorMsg = JSON.stringify(error);
         }
         alert(errorMsg);
     } finally {
@@ -138,7 +147,7 @@ async function callApi(endpoint, dataObj, resultElementId, successCallback) {
 }
 
 /* =========================================================
-   CONFIGURAÇÃO DAS CALCULADORAS
+   CONFIGURAÇÃO DAS CALCULADORAS (Adequadas às suas APIs)
 ========================================================= */
 
 // 1. Regra de Três
@@ -147,7 +156,7 @@ function calcularRegraTres() {
     const valor2 = parseBrazilianNumber(document.getElementById('rt-v2').value);
     const valor3 = parseBrazilianNumber(document.getElementById('rt-v3').value);
 
-    callApi('/calculadora_regra_tres', { valor1, valor2, valor3 }, null, data => {
+    callApi('/calculadora_regra_tres', { valor1, valor2, valor3 }, data => {
         const resBox = document.getElementById('rt-result');
         const resVal = document.getElementById('rt-val');
         resBox.classList.add('active', 'success');
@@ -166,7 +175,7 @@ function calcularMedia() {
     const extrasRaw = document.getElementById('med-extras').value;
     const pontos_extras = extrasRaw ? extrasRaw.split(',').map(v => parseBrazilianNumber(v.trim())) : null;
 
-    callApi('/calculadora_media', { prova_parcial, prova_global, trabalhos, pontos_extras }, null, data => {
+    callApi('/calculadora_media', { prova_parcial, prova_global, trabalhos, pontos_extras }, data => {
         const resBox = document.getElementById('med-result');
         const resVal = document.getElementById('med-val');
         const resExp = document.getElementById('med-exp');
@@ -191,7 +200,7 @@ function calcularCombustivel() {
     const consumo_medio_kml = parseBrazilianNumber(document.getElementById('comb-consumo').value);
     const valor_combustivel = parseBrazilianNumber(document.getElementById('comb-valor').value);
 
-    callApi('/calculadora_combustivel', { distancia, consumo_medio_kml, valor_combustivel }, null, data => {
+    callApi('/calculadora_combustivel', { distancia, consumo_medio_kml, valor_combustivel }, data => {
         const resBox = document.getElementById('comb-result');
         const resVal = document.getElementById('comb-val');
         const resExp = document.getElementById('comb-exp');
@@ -209,24 +218,21 @@ function calcularMotorista() {
     const consumo_veiculo = parseBrazilianNumber(document.getElementById('mot-consumo').value);
     const valor_combustivel = parseBrazilianNumber(document.getElementById('mot-valor').value);
     
-    const alimentacaoVal = document.getElementById('mot-alim').value;
-    const alimentacao = alimentacaoVal ? parseBrazilianNumber(alimentacaoVal) : null;
-
-    const cafeVal = document.getElementById('mot-cafe').value;
-    const cafe = cafeVal ? parseBrazilianNumber(cafeVal) : null;
-
-    const outrosVal = document.getElementById('mot-outros').value;
-    const outros_gastos = outrosVal ? parseBrazilianNumber(outrosVal) : null;
+    const alimentacao = parseOptionalNumber(document.getElementById('mot-alim').value);
+    const cafe = parseOptionalNumber(document.getElementById('mot-cafe').value);
+    const outros_gastos = parseOptionalNumber(document.getElementById('mot-outros').value);
 
     callApi('/calculadora_motorista', {
         distancia, ganhos, consumo_veiculo, valor_combustivel, alimentacao, cafe, outros_gastos
-    }, null, data => {
+    }, data => {
         const resBox = document.getElementById('mot-result');
         const resVal = document.getElementById('mot-val');
         const resExp = document.getElementById('mot-exp');
 
         resBox.classList.add('active', 'success');
-        const lucroLiquido = typeof data.resultado === 'object' ? data.resultado.lucro_liquido : data.resultado;
+        const resInterno = data.resultado;
+        const lucroLiquido = (typeof resInterno === 'object' && resInterno !== null) ? (resInterno.lucro_liquido || resInterno.lucro || 0) : resInterno;
+        
         resVal.innerText = `Lucro Líquido: ${formatCurrencyBRL(lucroLiquido)}`;
         resExp.innerText = `Desempenho: ${data.desempenho || 'Análise concluída com sucesso.'}`;
     });
@@ -237,7 +243,7 @@ function calcularAlcoolGasolina() {
     const valor_alcool = parseBrazilianNumber(document.getElementById('alg-alcool').value);
     const valor_gasolina = parseBrazilianNumber(document.getElementById('alg-gasolina').value);
 
-    callApi('/calculadora_alcool_gasolina', { valor_alcool, valor_gasolina }, null, data => {
+    callApi('/calculadora_alcool_gasolina', { valor_alcool, valor_gasolina }, data => {
         const resBox = document.getElementById('alg-result');
         const resVal = document.getElementById('alg-val');
 
@@ -251,7 +257,7 @@ function calcularGastos() {
     const salario_liquido = parseBrazilianNumber(document.getElementById('gas-salario').value);
     const gastos_essenciais = parseBrazilianNumber(document.getElementById('gas-essenciais').value);
 
-    callApi('/calculadora_gastos', { salario_liquido, gastos_essenciais }, null, data => {
+    callApi('/calculadora_gastos', { salario_liquido, gastos_essenciais }, data => {
         const resBox = document.getElementById('gas-result');
         const resVal = document.getElementById('gas-val');
         const resExp = document.getElementById('gas-exp');
@@ -267,10 +273,9 @@ function calcularFinanciamento() {
     const valor = parseBrazilianNumber(document.getElementById('fin-valor').value);
     const taxa_juros = parseBrazilianNumber(document.getElementById('fin-juros').value);
     const ano = parseInt(document.getElementById('fin-ano').value) || 1;
-    const valEntrada = document.getElementById('fin-entrada').value;
-    const valor_entrada = valEntrada ? parseBrazilianNumber(valEntrada) : 0;
+    const valor_entrada = parseOptionalNumber(document.getElementById('fin-entrada').value);
 
-    callApi('/calculadora_financiamento', { valor, taxa_juros, ano, valor_entrada }, null, data => {
+    callApi('/calculadora_financiamento', { valor, taxa_juros, ano, valor_entrada }, data => {
         const resBox = document.getElementById('fin-result');
         const resVal = document.getElementById('fin-val');
 
@@ -287,7 +292,7 @@ function calcularJurosCompostos() {
     const taxa_juros = parseBrazilianNumber(document.getElementById('jc-taxa').value);
     const periodo_anos = parseInt(document.getElementById('jc-periodo').value) || 1;
 
-    callApi('/calculadora_juros_compostos', { valor_inicial, aporte_mensal, taxa_juros, periodo_anos }, null, data => {
+    callApi('/calculadora_juros_compostos', { valor_inicial, aporte_mensal, taxa_juros, periodo_anos }, data => {
         const resBox = document.getElementById('jc-result');
         const resVal = document.getElementById('jc-val');
 
@@ -303,7 +308,7 @@ function calcularEletrodomesticos() {
     const dias_uso = parseInt(document.getElementById('el-dias').value) || 1;
     const valor_kwh = parseBrazilianNumber(document.getElementById('el-kwh').value);
 
-    callApi('/calculadora_eletrodomesticos', { potencia, horas_uso, dias_uso, valor_kwh }, null, data => {
+    callApi('/calculadora_eletrodomesticos', { potencia, horas_uso, dias_uso, valor_kwh }, data => {
         const resBox = document.getElementById('el-result');
         const resVal = document.getElementById('el-val');
 
@@ -318,11 +323,11 @@ function calcularAutonomos() {
     const horas_trabalho = parseBrazilianNumber(document.getElementById('aut-horas').value);
     const valor_hora = parseBrazilianNumber(document.getElementById('aut-valorhora').value);
     const margem_lucro = parseBrazilianNumber(document.getElementById('aut-margem').value);
-    const taxa_maquininha = parseBrazilianNumber(document.getElementById('aut-taxamaq').value);
+    const taxa_maquininha = parseOptionalNumber(document.getElementById('aut-taxamaq') ? document.getElementById('aut-taxamaq').value : null);
 
     callApi('/calculadora_autonomos', {
         custos_operacionais, horas_trabalho, valor_hora, margem_lucro, taxa_maquininha
-    }, null, data => {
+    }, data => {
         const resBox = document.getElementById('aut-result');
         const resVal = document.getElementById('aut-val');
 
