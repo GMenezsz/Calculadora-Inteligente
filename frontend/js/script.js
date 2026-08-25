@@ -86,33 +86,24 @@ async function callApi(endpoint, paramsObj, resultElementId, successCallback) {
     }
 
     try {
-        // Filtra valores nulos ou vazios e transforma em Query Params (ex: ?valor1=10&valor2=20)
-        const filteredParams = {};
+        let baseUrl = API_BASE_URL.trim();
+        if (baseUrl.startsWith('http://')) {
+            baseUrl = baseUrl.replace('http://', 'https://');
+        }
+
+        const urlParams = new URLSearchParams();
         for (const key in paramsObj) {
             if (paramsObj[key] !== null && paramsObj[key] !== undefined && paramsObj[key] !== '') {
-                // Se for array (ex: trabalhos, pontos_extras), o FastAPI via query precisa de múltiplos parâmetros ou string formatada
                 if (Array.isArray(paramsObj[key])) {
-                    // Passa cada item do array se houver elementos
-                    if (paramsObj[key].length > 0) {
-                        filteredParams[key] = paramsObj[key];
-                    }
+                    paramsObj[key].forEach(item => urlParams.append(key, item));
                 } else {
-                    filteredParams[key] = paramsObj[key];
+                    urlParams.append(key, paramsObj[key]);
                 }
             }
         }
 
-        const urlParams = new URLSearchParams();
-        for (const key in filteredParams) {
-            if (Array.isArray(filteredParams[key])) {
-                filteredParams[key].forEach(item => urlParams.append(key, item));
-            } else {
-                urlParams.append(key, filteredParams[key]);
-            }
-        }
-
         const queryString = urlParams.toString();
-        const fullUrl = `${API_BASE_URL}${endpoint}${queryString ? '?' + queryString : ''}`;
+        const fullUrl = `${baseUrl}${endpoint}${queryString ? '?' + queryString : ''}`;
 
         const response = await fetch(fullUrl, {
             method: 'POST',
@@ -121,7 +112,13 @@ async function callApi(endpoint, paramsObj, resultElementId, successCallback) {
             }
         });
 
-        const data = await response.json();
+        const responseText = await response.text();
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (e) {
+            throw new Error(`Erro no servidor (${response.status}): ${responseText || 'Servidor indisponível'}`);
+        }
 
         if (!response.ok) {
             const errorDetail = data.detail || data.message || 'Erro ao processar o cálculo.';
@@ -239,7 +236,8 @@ function calcularMotorista() {
         const resExp = document.getElementById('mot-exp');
 
         resBox.classList.add('active', 'success');
-        resVal.innerText = `Lucro Líquido: ${formatCurrencyBRL(data.resultado.lucro_liquido || data.resultado)}`;
+        const lucroLiquido = typeof data.resultado === 'object' ? data.resultado.lucro_liquido : data.resultado;
+        resVal.innerText = `Lucro Líquido: ${formatCurrencyBRL(lucroLiquido)}`;
         resExp.innerText = `Desempenho: ${data.desempenho || 'Análise concluída com sucesso.'}`;
     });
 }
