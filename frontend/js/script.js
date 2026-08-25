@@ -74,9 +74,9 @@ function setupSidebar() {
 }
 
 /* =========================================================
-   CONSUMO DA API (ENVIANDO COMO QUERY PARAMS NA URL)
+   CONSUMO DA API (ENVIANDO COMO JSON BODY)
 ========================================================= */
-async function callApi(endpoint, paramsObj, resultElementId, successCallback) {
+async function callApi(endpoint, dataObj, resultElementId, successCallback) {
     const btn = document.activeElement && document.activeElement.tagName === 'BUTTON' ? document.activeElement : null;
     let originalText = '';
     if (btn) {
@@ -91,25 +91,15 @@ async function callApi(endpoint, paramsObj, resultElementId, successCallback) {
             baseUrl = baseUrl.replace('http://', 'https://');
         }
 
-        const urlParams = new URLSearchParams();
-        for (const key in paramsObj) {
-            if (paramsObj[key] !== null && paramsObj[key] !== undefined && paramsObj[key] !== '') {
-                if (Array.isArray(paramsObj[key])) {
-                    paramsObj[key].forEach(item => urlParams.append(key, item));
-                } else {
-                    urlParams.append(key, paramsObj[key]);
-                }
-            }
-        }
-
-        const queryString = urlParams.toString();
-        const fullUrl = `${baseUrl}${endpoint}${queryString ? '?' + queryString : ''}`;
+        const fullUrl = `${baseUrl}${endpoint}`;
 
         const response = await fetch(fullUrl, {
             method: 'POST',
             headers: {
+                'Content-Type': 'application/json',
                 'Accept': 'application/json'
-            }
+            },
+            body: JSON.stringify(dataObj)
         });
 
         const responseText = await response.text();
