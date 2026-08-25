@@ -74,9 +74,9 @@ function setupSidebar() {
 }
 
 /* =========================================================
-   CONSUMO DA API E REQUISIÇÕES (RETORNADO PARA JSON BODY)
+   CONSUMO DA API (ENVIANDO COMO QUERY PARAMS NA URL)
 ========================================================= */
-async function callApi(endpoint, payload, resultElementId, successCallback) {
+async function callApi(endpoint, paramsObj, resultElementId, successCallback) {
     const btn = document.activeElement && document.activeElement.tagName === 'BUTTON' ? document.activeElement : null;
     let originalText = '';
     if (btn) {
@@ -86,13 +86,39 @@ async function callApi(endpoint, payload, resultElementId, successCallback) {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        // Filtra valores nulos ou vazios e transforma em Query Params (ex: ?valor1=10&valor2=20)
+        const filteredParams = {};
+        for (const key in paramsObj) {
+            if (paramsObj[key] !== null && paramsObj[key] !== undefined && paramsObj[key] !== '') {
+                // Se for array (ex: trabalhos, pontos_extras), o FastAPI via query precisa de múltiplos parâmetros ou string formatada
+                if (Array.isArray(paramsObj[key])) {
+                    // Passa cada item do array se houver elementos
+                    if (paramsObj[key].length > 0) {
+                        filteredParams[key] = paramsObj[key];
+                    }
+                } else {
+                    filteredParams[key] = paramsObj[key];
+                }
+            }
+        }
+
+        const urlParams = new URLSearchParams();
+        for (const key in filteredParams) {
+            if (Array.isArray(filteredParams[key])) {
+                filteredParams[key].forEach(item => urlParams.append(key, item));
+            } else {
+                urlParams.append(key, filteredParams[key]);
+            }
+        }
+
+        const queryString = urlParams.toString();
+        const fullUrl = `${API_BASE_URL}${endpoint}${queryString ? '?' + queryString : ''}`;
+
+        const response = await fetch(fullUrl, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 'Accept': 'application/json'
-            },
-            body: JSON.stringify(payload)
+            }
         });
 
         const data = await response.json();
@@ -107,7 +133,7 @@ async function callApi(endpoint, payload, resultElementId, successCallback) {
         }
 
     } catch (error) {
-        let errorMsg = 'Erro de conexão com a API. O servidor no Render pode estar iniciando ou bloqueou a requisição.';
+        let errorMsg = 'Erro de conexão com a API. O servidor no Render pode estar iniciando.';
         if (typeof error === 'string') {
             errorMsg = error;
         } else if (error && error.message) {
@@ -213,7 +239,7 @@ function calcularMotorista() {
         const resExp = document.getElementById('mot-exp');
 
         resBox.classList.add('active', 'success');
-        resVal.innerText = `Lucro Líquido: ${formatCurrencyBRL(data.resultado)}`;
+        resVal.innerText = `Lucro Líquido: ${formatCurrencyBRL(data.resultado.lucro_liquido || data.resultado)}`;
         resExp.innerText = `Desempenho: ${data.desempenho || 'Análise concluída com sucesso.'}`;
     });
 }
@@ -244,7 +270,7 @@ function calcularGastos() {
 
         resBox.classList.add('active', 'success');
         resVal.innerText = `Orçamento Analisado`;
-        resExp.innerText = data.mensagem || data.resultado || JSON.stringify(data, null, 2);
+        resExp.innerText = data.mensagem || JSON.stringify(data.resultado, null, 2);
     });
 }
 
@@ -261,7 +287,7 @@ function calcularFinanciamento() {
         const resVal = document.getElementById('fin-val');
 
         resBox.classList.add('active', 'success');
-        const valorFinal = data.resultado || data.prestacao_mensal || data.valor || 0;
+        const valorFinal = data.resultado || 0;
         resVal.innerText = `Prestação Mensal: ${formatCurrencyBRL(valorFinal)}`;
     });
 }
@@ -278,8 +304,7 @@ function calcularJurosCompostos() {
         const resVal = document.getElementById('jc-val');
 
         resBox.classList.add('active', 'success');
-        const montanteFinal = data.resultado || data.montante_final || data.valor || 0;
-        resVal.innerText = `Montante Final: ${formatCurrencyBRL(montanteFinal)}`;
+        resVal.innerText = `Montante Final: ${formatCurrencyBRL(data.resultado)}`;
     });
 }
 
@@ -314,8 +339,7 @@ function calcularAutonomos() {
         const resVal = document.getElementById('aut-val');
 
         resBox.classList.add('active', 'success');
-        const valorHoraFinal = data.resultado || data.valor_hora_sugerido || data.valor || 0;
-        resVal.innerText = `Valor Hora Sugerido: ${formatCurrencyBRL(valorHoraFinal)}`;
+        resVal.innerText = `Valor Hora Sugerido: ${formatCurrencyBRL(data.resultado)}`;
     });
 }
 
