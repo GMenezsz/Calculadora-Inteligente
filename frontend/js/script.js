@@ -1,306 +1,351 @@
-const API_URL = "https://calculadora-inteligente-api.onrender.com";
+/* =========================================================
+   CONFIGURAÇÃO CENTRAL DA API
+========================================================= */
+const API_BASE_URL = 'https://calculadora-inteligente-api.onrender.com';
 
-// Alternar entre abas do menu lateral
-const navLinks = document.querySelectorAll('.nav-link');
-const sections = document.querySelectorAll('.calc-section');
+/* =========================================================
+   FUNÇÕES AUXILIARES DE FORMATAÇÃO E PARSE
+========================================================= */
+function parseBrazilianNumber(value) {
+    if (typeof value === 'number') return value;
+    if (!value || typeof value !== 'string') return 0;
+    
+    // Remove R$, espaços e converte formato brasileiro (1.234,56) para float (1234.56)
+    let cleanVal = value.replace(/R\$|\s/g, '');
+    
+    // Se possui ponto e vírgula (ex: 1.234,56)
+    if (cleanVal.includes(',') && cleanVal.includes('.')) {
+        cleanVal = cleanVal.replace(/\./g, '').replace(',', '.');
+    } else if (cleanVal.includes(',')) {
+        // Se possui apenas vírgula (ex: 1234,56 ou 1234,5)
+        cleanVal = cleanVal.replace(',', '.');
+    }
+    
+    const parsed = parseFloat(cleanVal);
+    return isNaN(parsed) ? 0 : parsed;
+}
 
-navLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        navLinks.forEach(item => item.classList.remove('active'));
-        sections.forEach(sec => sec.classList.remove('active'));
-
-        link.classList.add('active');
-        const target = document.getElementById(link.getAttribute('data-target'));
-        target.classList.add('active');
+function formatCurrencyBRL(value) {
+    const num = parseFloat(value);
+    if (isNaN(num)) return 'R$ 0,00';
+    return num.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
     });
-});
+}
 
-// Função segura para tratar pontos de milhar e vírgulas decimais
-function parseValor(valorStr) {
-    if (!valorStr) return NaN;
-    let str = valorStr.toString().trim();
+function formatNumberBR(value, decimals = 2) {
+    const num = parseFloat(value);
+    if (isNaN(num)) return '0';
+    return num.toLocaleString('pt-BR', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+    });
+}
+
+/* =========================================================
+   GERENCIAMENTO DE VIEWS E NAVEGAÇÃO
+========================================================= */
+function navigateTo(viewId) {
+    document.querySelectorAll('.view-section').forEach(section => {
+        section.classList.remove('active');
+    });
     
-    if (str.includes('.') && str.includes(',')) {
-        str = str.replace(/\./g, '').replace(',', '.');
-    } else if (str.includes('.')) {
-        const partes = str.split('.');
-        if (partes.length > 2 || (partes.length === 2 && partes[1].length === 3 && partes[0].length <= 3)) {
-            str = str.replace(/\./g, '');
+    const target = document.getElementById(viewId);
+    if (target) {
+        target.classList.add('active');
+        window.scrollTo(0, 0);
+    }
+    
+    // Atualizar classe active no menu lateral
+    document.querySelectorAll('.sidebar-sublist a').forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('data-target') === viewId) {
+            link.classList.add('active');
         }
-    } else if (str.includes(',')) {
-        str = str.replace(',', '.');
-    }
-    
-    return parseFloat(str);
+    });
 }
 
-function parseList(text) {
-    if (!text || !text.trim()) return null;
-    return text.split(',').map(item => parseValor(item)).filter(item => !isNaN(item));
-}
-
-// 1. Calculadora de Média
-document.getElementById('form-media').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const prova_parcial = parseValor(document.getElementById('media-parcial').value);
-    const prova_global = parseValor(document.getElementById('media-global').value);
-    const trabalhos = parseList(document.getElementById('media-trabalhos').value);
-    const pontos_extras = parseList(document.getElementById('media-extras').value);
-
-    const box = document.getElementById('resultado-media');
-    box.classList.remove('hidden');
-
-    if (isNaN(prova_parcial) || isNaN(prova_global)) {
-        box.innerHTML = `<span style="color: red;">Erro: Digite apenas números válidos nas provas.</span>`;
-        return;
-    }
-
-    const url = `${API_URL}/calculadora_media?prova_parcial=${prova_parcial}&prova_global=${prova_global}`;
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ trabalhos, pontos_extras })
+/* =========================================================
+   MENU LATERAL (Abrir/Fechar Categorias)
+========================================================= */
+function setupSidebar() {
+    document.querySelectorAll('.sidebar-category-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const category = header.parentElement;
+            category.classList.toggle('closed');
         });
-        
+    });
+}
+
+/* =========================================================
+   CONSUMO DA API E REQUISIÇÕES
+========================================================= */
+async function callApi(endpoint, payload, resultElementId, successCallback) {
+    const btn = event ? event.target : null;
+    let originalText = '';
+    if (btn && btn.tagName === 'BUTTON') {
+        originalText = btn.innerText;
+        btn.innerText = 'Calculando...';
+        btn.disabled = true;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
         const data = await response.json();
 
-        if (response.ok) {
-            const res = data.resultado;
-            
-            let statusCardHtml = "";
-            if (res.aprovado) {
-                statusCardHtml = `
-                    <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <strong>Situação Acadêmica</strong>
-                        <div style="font-size: 1.2em; color: #27ae60; font-weight: bold;">Aluno aprovado com a nota de ${res.nota_final.toFixed(2)}.</div>
-                        <small style="color: #666; display: block; margin-top: 5px;">A nota final atingiu o critério mínimo necessário para aprovação.</small>
-                    </div>
-                `;
-            } else {
-                statusCardHtml = `
-                    <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <strong>Situação Acadêmica</strong>
-                        <div style="font-size: 1.2em; color: #e74c3c; font-weight: bold;">Aluno reprovado com a nota de ${res.nota_final.toFixed(2)}.</div>
-                        <small style="color: #666; display: block; margin-top: 5px;">A nota final ficou abaixo da média mínima exigida.</small>
-                    </div>
-                `;
-            }
-
-            box.innerHTML = `
-                <div style="display: grid; gap: 12px; margin-top: 15px;">
-                    ${statusCardHtml}
-
-                    <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <strong>Prova Parcial</strong>
-                        <div style="font-size: 1.2em; color: #2c3e50; font-weight: bold;">${res.prova_parcial.toFixed(2)}</div>
-                        <small style="color: #666; display: block; margin-top: 5px;">Nota obtida na avaliação parcial do período.</small>
-                    </div>
-
-                    <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <strong>Prova Global</strong>
-                        <div style="font-size: 1.2em; color: #2c3e50; font-weight: bold;">${res.prova_global.toFixed(2)}</div>
-                        <small style="color: #666; display: block; margin-top: 5px;">Nota obtida na avaliação global/final.</small>
-                    </div>
-
-                    <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <strong>Total de Trabalhos</strong>
-                        <div style="font-size: 1.2em; color: #2980b9; font-weight: bold;">${res.total_trabalhos_somado.toFixed(2)}</div>
-                        <small style="color: #666; display: block; margin-top: 5px;">Soma dos pontos obtidos através dos trabalhos entregues.</small>
-                    </div>
-
-                    <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <strong>Pontos Extras</strong>
-                        <div style="font-size: 1.2em; color: #8e44ad; font-weight: bold;">${res.total_pontos_extras.toFixed(2)}</div>
-                        <small style="color: #666; display: block; margin-top: 5px;">Pontuação adicional acumulada por atividades extras.</small>
-                    </div>
-                </div>
-            `;
-        } else {
-            const mensagemErro = typeof data.detail === 'object' ? JSON.stringify(data.detail) : (data.detail || 'Valores inválidos');
-            box.innerHTML = `<span style="color: red;">Erro: ${mensagemErro}</span>`;
+        if (!response.ok) {
+            throw new Error(data.detail || 'Erro ao processar o cálculo. Verifique os valores.');
         }
-    } catch (error) {
-        console.error("Detalhe do erro de conexão:", error);
-        box.innerHTML = `<span style="color: red;">Erro técnico: ${error.message}</span>`;
-    }
-});
 
-// 2. Calculadora de Financiamento
-document.getElementById('form-financiamento').addEventListener('submit', async (e) => {
-    e.preventDefault();
+        if (successCallback) {
+            successCallback(data);
+        }
+
+    } catch (error) {
+        alert(error.message || 'Erro de conexão com a API.');
+    } finally {
+        if (btn && btn.tagName === 'BUTTON') {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    }
+}
+
+/* =========================================================
+   CONFIGURAÇÃO DAS CALCULADORAS
+========================================================= */
+
+// 1. Regra de Três
+function calcularRegraTres() {
+    const v1 = parseBrazilianNumber(document.getElementById('rt-v1').value);
+    const v2 = parseBrazilianNumber(document.getElementById('rt-v2').value);
+    const v3 = parseBrazilianNumber(document.getElementById('rt-v3').value);
+
+    callApi('/calculadora_regra_tres', { valor1: v1, valor2: v2, valor3: v3 }, null, data => {
+        const resBox = document.getElementById('rt-result');
+        const resVal = document.getElementById('rt-val');
+        resBox.classList.add('active', 'success');
+        resVal.innerText = `X = ${formatNumberBR(data.resultado, 4)}`;
+    });
+}
+
+// 2. Média
+function calcularMedia() {
+    const prova_parcial = parseBrazilianNumber(document.getElementById('med-parcial').value);
+    const prova_global = parseBrazilianNumber(document.getElementById('med-global').value);
     
-    const elValor = document.getElementById('fin-valor') || document.getElementById('valor');
-    const elJuros = document.getElementById('fin-juros') || document.getElementById('taxa_juros');
-    const elAno = document.getElementById('fin-ano') || document.getElementById('ano') || document.getElementById('prazo');
-    const elEntrada = document.getElementById('fin-entrada') || document.getElementById('valor_entrada');
+    const trabalhosRaw = document.getElementById('med-trabalhos').value;
+    const trabalhos = trabalhosRaw ? trabalhosRaw.split(',').map(v => parseBrazilianNumber(v.trim())) : null;
 
-    const valor = parseValor(elValor ? elValor.value : '');
-    const taxa_juros = parseValor(elJuros ? elJuros.value : '');
-    const ano = parseValor(elAno ? elAno.value : '');
-    const valor_entrada = parseValor(elEntrada ? elEntrada.value : '0') || 0;
+    const extrasRaw = document.getElementById('med-extras').value;
+    const pontos_extras = extrasRaw ? extrasRaw.split(',').map(v => parseBrazilianNumber(v.trim())) : null;
 
-    const box = document.getElementById('resultado-financiamento');
-    box.classList.remove('hidden');
+    callApi('/calculadora_media', { prova_parcial, prova_global, trabalhos, pontos_extras }, null, data => {
+        const resBox = document.getElementById('med-result');
+        const resVal = document.getElementById('med-val');
+        const resExp = document.getElementById('med-exp');
 
-    if (isNaN(valor) || isNaN(taxa_juros) || isNaN(ano)) {
-        box.innerHTML = `<span style="color: red;">Erro: Preencha todos os campos obrigatórios com números válidos.</span>`;
-        return;
-    }
+        resBox.classList.add('active');
+        resVal.innerText = `Média / Pontos: ${formatNumberBR(data.resultado, 2)}`;
+        resExp.innerText = data.mensagem || 'Resultado calculado com sucesso.';
 
-    const url = `${API_URL}/Calculadora_financiamento?valor=${valor}&taxa_juros=${taxa_juros}&ano=${ano}&valor_entrada=${valor_entrada}`;
-
-    try {
-        const response = await fetch(url, { method: 'POST' });
-        const data = await response.json();
-
-        if (response.ok) {
-            const r = data.resultado;
-            box.innerHTML = `
-                <div style="display: grid; gap: 12px; margin-top: 15px;">
-                    
-                    <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <strong>Valor da Parcela Mensal</strong>
-                        <div style="font-size: 1.3em; color: #2c3e50; font-weight: bold;">R$ ${r["Parcela mensal"].toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                        <small style="color: #666; display: block; margin-top: 5px;">Quantia fixa a ser paga todos os meses durante o prazo do financiamento.</small>
-                    </div>
-
-                    <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <strong>Valor de Entrada</strong>
-                        <div style="font-size: 1.3em; color: #27ae60; font-weight: bold;">R$ ${r["Valor entrada"].toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                        <small style="color: #666; display: block; margin-top: 5px;">Quantia paga à vista no momento inicial da contratação.</small>
-                    </div>
-
-                    <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <strong>Valor Total do Financiamento</strong>
-                        <div style="font-size: 1.3em; color: #2980b9; font-weight: bold;">R$ ${r["Valor total"].toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                        <small style="color: #666; display: block; margin-top: 5px;">Soma total de todos os pagamentos realizados ao longo do contrato.</small>
-                    </div>
-
-                    <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <strong>Valor Total só de Juros</strong>
-                        <div style="font-size: 1.3em; color: #e74c3c; font-weight: bold;">R$ ${r["Valor total de juros"].toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                        <small style="color: #666; display: block; margin-top: 5px;">O custo adicional pago em juros acumulados sobre o valor emprestado.</small>
-                    </div>
-
-                    <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <strong>Prazo em Meses</strong>
-                        <div style="font-size: 1.3em; color: #8e44ad; font-weight: bold;">${r["Prazo em meses"]} meses</div>
-                        <small style="color: #666; display: block; margin-top: 5px;">Duração total da vigência do contrato de financiamento.</small>
-                    </div>
-
-                </div>
-            `;
+        if (data.resultado < 60) {
+            resBox.classList.add('danger');
+            resBox.classList.remove('success');
         } else {
-            const mensagemErro = typeof data.detail === 'object' ? JSON.stringify(data.detail) : (data.detail || 'Valores inválidos');
-            box.innerHTML = `<span style="color: red;">Erro: ${mensagemErro}</span>`;
+            resBox.classList.add('success');
+            resBox.classList.remove('danger');
         }
-    } catch (error) {
-        console.error("Detalhe do erro de conexão:", error);
-        box.innerHTML = `<span style="color: red;">Erro técnico: ${error.message}</span>`;
-    }
+    });
+}
+
+// 3. Combustível
+function calcularCombustivel() {
+    const distancia = parseBrazilianNumber(document.getElementById('comb-dist').value);
+    const consumo_medio_kml = parseBrazilianNumber(document.getElementById('comb-consumo').value);
+    const valor_combustivel = parseBrazilianNumber(document.getElementById('comb-valor').value);
+
+    callApi('/calculadora_combustivel', { distancia, consumo_medio_kml, valor_combustivel }, null, data => {
+        const resBox = document.getElementById('comb-result');
+        const resVal = document.getElementById('comb-val');
+        const resExp = document.getElementById('comb-exp');
+
+        resBox.classList.add('active', 'success');
+        resVal.innerText = `Custo Estimado: ${formatCurrencyBRL(data.resultado)}`;
+        resExp.innerText = `Viagem estimada de ${distancia} km com consumo de ${consumo_medio_kml} km/l.`;
+    });
+}
+
+// 4. Motorista Autônomo
+function calcularMotorista() {
+    const distancia = parseBrazilianNumber(document.getElementById('mot-dist').value);
+    const ganhos = parseBrazilianNumber(document.getElementById('mot-ganhos').value);
+    const consumo_veiculo = parseBrazilianNumber(document.getElementById('mot-consumo').value);
+    const valor_combustivel = parseBrazilianNumber(document.getElementById('mot-valor').value);
+    
+    const alimentacaoVal = document.getElementById('mot-alim').value;
+    const alimentacao = alimentacaoVal ? parseBrazilianNumber(alimentacaoVal) : null;
+
+    const cafeVal = document.getElementById('mot-cafe').value;
+    const cafe = cafeVal ? parseBrazilianNumber(cafeVal) : null;
+
+    const outrosVal = document.getElementById('mot-outros').value;
+    const outros_gastos = outrosVal ? parseBrazilianNumber(outrosVal) : null;
+
+    callApi('/calculadora_motorista', {
+        distancia, ganhos, consumo_veiculo, valor_combustivel, alimentacao, cafe, outros_gastos
+    }, null, data => {
+        const resBox = document.getElementById('mot-result');
+        const resVal = document.getElementById('mot-val');
+        const resExp = document.getElementById('mot-exp');
+
+        resBox.classList.add('active', 'success');
+        resVal.innerText = `Lucro Líquido: ${formatCurrencyBRL(data.resultado)}`;
+        resExp.innerText = `Desempenho: ${data.desempenho || 'Análise concluída com sucesso.'}`;
+    });
+}
+
+// 5. Álcool ou Gasolina
+function calcularAlcoolGasolina() {
+    const valor_alcool = parseBrazilianNumber(document.getElementById('alg-alcool').value);
+    const valor_gasolina = parseBrazilianNumber(document.getElementById('alg-gasolina').value);
+
+    callApi('/calculadora_alcool_gasolina', { valor_alcool, valor_gasolina }, null, data => {
+        const resBox = document.getElementById('alg-result');
+        const resVal = document.getElementById('alg-val');
+
+        resBox.classList.add('active', 'success');
+        resVal.innerText = data.resultado || 'Análise concluída.';
+    });
+}
+
+// 6. Gastos (50/30/20)
+function calcularGastos() {
+    const salario_liquido = parseBrazilianNumber(document.getElementById('gas-salario').value);
+    const gastos_essenciais = parseBrazilianNumber(document.getElementById('gas-essenciais').value);
+
+    callApi('/calculadora_gastos', { salario_liquido, gastos_essenciais }, null, data => {
+        const resBox = document.getElementById('gas-result');
+        const resVal = document.getElementById('gas-val');
+        const resExp = document.getElementById('gas-exp');
+
+        resBox.classList.add('active', 'success');
+        resVal.innerText = `Orçamento Analisado`;
+        resExp.innerText = JSON.stringify(data, null, 2);
+    });
+}
+
+// 7. Financiamento
+function calcularFinanciamento() {
+    const valor = parseBrazilianNumber(document.getElementById('fin-valor').value);
+    const taxa_juros = parseBrazilianNumber(document.getElementById('fin-juros').value);
+    const ano = parseInt(document.getElementById('fin-ano').value) || 1;
+    const valEntrada = document.getElementById('fin-entrada').value;
+    const valor_entrada = valEntrada ? parseBrazilianNumber(valEntrada) : 0;
+
+    callApi('/Calculadora_financiamento', { valor, taxa_juros, ano, valor_entrada }, null, data => {
+        const resBox = document.getElementById('fin-result');
+        const resVal = document.getElementById('fin-val');
+
+        resBox.classList.add('active', 'success');
+        resVal.innerText = `Resultado: ${JSON.stringify(data.resultado || data)}`;
+    });
+}
+
+// 8. Juros Compostos
+function calcularJurosCompostos() {
+    const valor_inicial = parseBrazilianNumber(document.getElementById('jc-inicial').value);
+    const aporte_mensal = parseBrazilianNumber(document.getElementById('jc-aporte').value);
+    const taxa_juros = parseBrazilianNumber(document.getElementById('jc-taxa').value);
+    const periodo_anos = parseInt(document.getElementById('jc-periodo').value) || 1;
+
+    callApi('/calculadora_juros_compostos', { valor_inicial, aporte_mensal, taxa_juros, periodo_anos }, null, data => {
+        const resBox = document.getElementById('jc-result');
+        const resVal = document.getElementById('jc-val');
+
+        resBox.classList.add('active', 'success');
+        resVal.innerText = `Montante Final: ${JSON.stringify(data.resultado || data)}`;
+    });
+}
+
+// 9. Eletrodomésticos
+function calcularEletrodomesticos() {
+    const potencia = parseInt(document.getElementById('el-potencia').value) || 0;
+    const horas_uso = parseBrazilianNumber(document.getElementById('el-horas').value);
+    const dias_uso = parseInt(document.getElementById('el-dias').value) || 1;
+    const valor_kwh = parseBrazilianNumber(document.getElementById('el-kwh').value);
+
+    callApi('/calculadora_eletrodomesticos', { potencia, horas_uso, dias_uso, valor_kwh }, null, data => {
+        const resBox = document.getElementById('el-result');
+        const resVal = document.getElementById('el-val');
+
+        resBox.classList.add('active', 'success');
+        resVal.innerText = `Custo Estimado: ${formatCurrencyBRL(data.resultado)}`;
+    });
+}
+
+// 10. Autônomos
+function calcularAutonomos() {
+    const custos_operacionais = [parseBrazilianNumber(document.getElementById('aut-custos').value)];
+    const horas_trabalho = parseBrazilianNumber(document.getElementById('aut-horas').value);
+    const valor_hora = parseBrazilianNumber(document.getElementById('aut-valorhora').value);
+    const margem_lucro = parseBrazilianNumber(document.getElementById('aut-margem').value);
+    const taxa_maquininha = parseBrazilianNumber(document.getElementById('aut-taxamaq').value);
+
+    callApi('/calculadora_autonomos', {
+        custos_operacionais, horas_trabalho, valor_hora, margem_lucro, taxa_maquininha
+    }, null, data => {
+        const resBox = document.getElementById('aut-result');
+        const resVal = document.getElementById('aut-val');
+
+        resBox.classList.add('active', 'success');
+        resVal.innerText = `Resultado: ${JSON.stringify(data.resultado || data)}`;
+    });
+}
+
+/* =========================================================
+   PWA INSTALL HANDLER
+========================================================= */
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const btn = document.getElementById('pwa-btn');
+    if (btn) btn.style.display = 'block';
 });
 
-// 3. Calculadora de Gastos
-document.getElementById('form-gastos').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const elSalario = document.getElementById('gastos-salario') || document.getElementById('salario_liquido');
-    const elGastos = document.getElementById('gastos-essenciais') || document.getElementById('gastos_essenciais');
-
-    const salario_liquido = parseValor(elSalario ? elSalario.value : '');
-    const gastos_essenciais = parseValor(elGastos ? elGastos.value : '');
-
-    const box = document.getElementById('resultado-gastos');
-    box.classList.remove('hidden');
-
-    if (isNaN(salario_liquido) || isNaN(gastos_essenciais)) {
-        box.innerHTML = `<span style="color: red;">Erro: Digite valores válidos para o salário e gastos essenciais.</span>`;
-        return;
-    }
-
-    const url = `${API_URL}/calculadora_gastos?salario_liquido=${salario_liquido}&gastos_essenciais=${gastos_essenciais}`;
-
-    try {
-        const response = await fetch(url, { method: 'POST' });
-        const data = await response.json();
-
-        if (response.ok) {
-            const r = data.resultado || data;
-
-            // Extrai com segurança lidando com diferentes nomes de chaves possíveis da API
-            const valSalario = Number(r.salario_liquido || salario_liquido);
-            const valGastosValor = Number(r.gastos_essenciais_valor ?? r.gastos_essenciais ?? gastos_essenciais);
-            const valGastosPerc = Number(r.gastos_essenciais_percentual ?? (valGastosValor / valSalario) * 100);
-            const valLazer = Number(r.valor_lazer_30 ?? valSalario * 0.30);
-            const valGuardar = Number(r.valor_guardar_20 ?? valSalario * 0.20);
-
-            const passouDos50 = valGastosPerc > 50;
-
-            let contentLazer = "";
-            let contentReserva = "";
-            let msgFixos = "Porcentagem do seu salário comprometida com necessidades básicas e obrigações mensais.";
-
-            if (passouDos50) {
-                msgFixos = "Atenção: Seus gastos fixos ultrapassaram 50%. Faça um controle financeiro e quite as dívidas antes de começar a dividir para lazer e reservas.";
-                
-                contentLazer = `
-                    <small style="color: #c0392b; display: block; margin-top: 5px; font-weight: bold;">Faça um controle financeiro e quite as dívidas antes de começar a dividir para 30% e 20%.</small>
-                `;
-
-                contentReserva = `
-                    <small style="color: #c0392b; display: block; margin-top: 5px; font-weight: bold;">Faça um controle financeiro e quite as dívidas antes de começar a dividir para 30% e 20%.</small>
-                `;
-            } else {
-                contentLazer = `
-                    <div style="font-size: 1.3em; color: #2980b9; font-weight: bold;">R$ ${valLazer.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                    <small style="color: #666; display: block; margin-top: 5px;">Com gastos fixos abaixo ou igual a 50%, você pode destinar essa quantia para lazer e estilo de vida.</small>
-                `;
-
-                contentReserva = `
-                    <div style="font-size: 1.3em; color: #8e44ad; font-weight: bold;">R$ ${valGuardar.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                    <small style="color: #666; display: block; margin-top: 5px;">Com gastos fixos abaixo ou igual a 50%, mantenha esse valor guardado para construir sua reserva de emergência.</small>
-                `;
+function installPWA() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('Usuário aceitou a instalação do PWA');
             }
-            
-            box.innerHTML = `
-                <div style="display: grid; gap: 12px; margin-top: 15px;">
-                    
-                    <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <strong>Salário Líquido</strong>
-                        <div style="font-size: 1.3em; color: #2c3e50; font-weight: bold;">R$ ${valSalario.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                        <small style="color: #666; display: block; margin-top: 5px;">O valor total que você recebe após os descontos básicos.</small>
-                    </div>
+            deferredPrompt = null;
+        });
+    } else {
+        alert('O aplicativo já está instalado ou seu navegador não suporta instalação direta.');
+    }
+}
 
-                    <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <strong>Gastos Mensais (50%)</strong>
-                        <div style="font-size: 1.3em; color: #2c3e50; font-weight: bold;">R$ ${valGastosValor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                        <div style="font-size: 1.1em; color: ${passouDos50 ? '#e74c3c' : '#27ae60'}; font-weight: bold; margin-top: 4px;">
-                            ${valGastosPerc.toFixed(2)}%
-                        </div>
-                        <small style="color: ${passouDos50 ? '#c0392b' : '#666'}; display: block; margin-top: 5px; ${passouDos50 ? 'font-weight: bold;' : ''}">${msgFixos}</small>
-                    </div>
+/* =========================================================
+   INICIALIZAÇÃO DO EVENT LISTENER
+========================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+    setupSidebar();
 
-                    <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <strong>Separar para Lazer (30%)</strong>
-                        ${contentLazer}
-                    </div>
-
-                    <div style="background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e1e1e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <strong>Reserva de Emergência (20%)</strong>
-                        ${contentReserva}
-                    </div>
-
-                </div>
-            `;
-        } else {
-            const mensagemErro = typeof data.detail === 'object' ? JSON.stringify(data.detail) : (data.detail || 'Valores inválidos');
-            box.innerHTML = `<span style="color: red;">Erro: ${mensagemErro}</span>`;
-        }
-    } catch (error) {
-        console.error("Detalhe do erro de conexão:", error);
-        box.innerHTML = `<span style="color: red;">Erro técnico: ${error.message}</span>`;
+    // Registrar Service Worker para PWA
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+            .then(() => console.log('Service Worker registrado com sucesso.'))
+            .catch(err => console.log('Erro ao registrar Service Worker:', err));
     }
 });
