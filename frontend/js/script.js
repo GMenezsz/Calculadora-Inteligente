@@ -82,11 +82,11 @@ function setupSidebar() {
    CONSUMO DA API E REQUISIÇÕES
 ========================================================= */
 async function callApi(endpoint, payload, resultElementId, successCallback) {
-    const btn = event ? event.target : null;
+    const btn = document.activeElement && document.activeElement.tagName === 'BUTTON' ? document.activeElement : null;
     let originalText = '';
-    if (btn && btn.tagName === 'BUTTON') {
+    if (btn) {
         originalText = btn.innerText;
-        btn.innerText = 'Calculando...';
+        btn.innerText = 'Acordando servidor... (aguarde)';
         btn.disabled = true;
     }
 
@@ -110,9 +110,9 @@ async function callApi(endpoint, payload, resultElementId, successCallback) {
         }
 
     } catch (error) {
-        alert(error.message || 'Erro de conexão com a API.');
+        alert(error.message || 'Erro de conexão com a API. O servidor no Render pode estar iniciando, tente novamente em instantes.');
     } finally {
-        if (btn && btn.tagName === 'BUTTON') {
+        if (btn) {
             btn.innerText = originalText;
             btn.disabled = false;
         }
@@ -243,7 +243,7 @@ function calcularGastos() {
     });
 }
 
-// 7. Financiamento
+// 7. Financiamento (Rota corrigida para minúsculas)
 function calcularFinanciamento() {
     const valor = parseBrazilianNumber(document.getElementById('fin-valor').value);
     const taxa_juros = parseBrazilianNumber(document.getElementById('fin-juros').value);
@@ -251,7 +251,7 @@ function calcularFinanciamento() {
     const valEntrada = document.getElementById('fin-entrada').value;
     const valor_entrada = valEntrada ? parseBrazilianNumber(valEntrada) : 0;
 
-    callApi('/Calculadora_financiamento', { valor, taxa_juros, ano, valor_entrada }, null, data => {
+    callApi('/calculadora_financiamento', { valor, taxa_juros, ano, valor_entrada }, null, data => {
         const resBox = document.getElementById('fin-result');
         const resVal = document.getElementById('fin-val');
 
