@@ -475,6 +475,59 @@ main {
     color: #555;
 }
 
+/* Lista de resultados (itens empilhados, um abaixo do outro, com bolinha preta) */
+ul.result-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+ul.result-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.5;
+}
+
+ul.result-list li::before {
+    content: "●";
+    color: #000;
+    font-size: 0.55rem;
+    line-height: 1.7;
+    flex-shrink: 0;
+}
+
+/* Cores da caixa de resultado do Motorista conforme o desempenho da quilometragem */
+#mot-result.perf-baixa {
+    background: #ffd2d2;
+    border-left-color: var(--danger-color);
+}
+
+#mot-result.perf-baixa .result-value {
+    color: var(--danger-color);
+}
+
+#mot-result.perf-boa {
+    background: #fff6d9;
+    border-left-color: #f1c40f;
+}
+
+#mot-result.perf-boa .result-value {
+    color: #b7950b;
+}
+
+#mot-result.perf-otima {
+    background: #e8f8f5;
+    border-left-color: var(--success-color);
+}
+
+#mot-result.perf-otima .result-value {
+    color: var(--success-color);
+}
+
 /* =========================================================
    SEÇÕES INFORMATIVAS
 ========================================================= */
