@@ -947,3 +947,36 @@ footer {
     color: #777;
     line-height: 1.5;
 }
+/* =========================================================
+   CORREÇÃO DO LAYOUT DA CALCULADORA AUTÔNOMOS (DESKTOP)
+========================================================= */
+@media (min-width: 769px) {
+    /* Ajusta o container principal para não esticar demais a calculadora */
+    main {
+        max-width: 900px; 
+        padding: 40px;
+    }
+
+    /* Força 3 colunas exatas para a calculadora de Autônomos */
+    #view-autonomos .form-grid {
+        grid-template-columns: repeat(3, 1fr); 
+        gap: 18px;
+    }
+
+    /* Ajuste para os campos que ficam "sozinhos" na última linha (Deslocamento) */
+    /* Isso faz com que o botão fique alinhado corretamente */
+    #view-autonomos .form-group:nth-child(6) { 
+        grid-column: 1 / 2; 
+    }
+
+    /* Faz os inputs preencherem toda a largura da sua célula sem estourar */
+    #view-autonomos .form-group input {
+        width: 100%;
+    }
+
+    /* Botão mais compacto e centralizado no desktop */
+    #view-autonomos .btn-calculate {
+        width: 100%;
+        max-width: 100%;
+    }
+}
