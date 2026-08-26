@@ -1044,3 +1044,31 @@ footer {
         display: none !important;
     }
 }
+
+/* =========================================================
+   ESCONDER CARD DE DOWNLOAD NO PC
+========================================================= */
+/* Esconde o card em telas grandes (Desktop) */
+@media (min-width: 769px) {
+    #pwa-download-card {
+        display: none !important;
+    }
+}
+
+/* Mostra o card apenas em telas menores (Mobile) */
+@media (max-width: 768px) {
+    #pwa-download-card {
+        display: block !important;
+    }
+    
+    /* Mantém o layout do card responsivo para o celular */
+    .pwa-card-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .pwa-card-btn {
+        width: 100%;
+    }
+}
