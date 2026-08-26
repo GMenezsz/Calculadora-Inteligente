@@ -489,7 +489,6 @@ main {
     color: #555;
 }
 
-/* Lista de resultados (itens empilhados, um abaixo do outro, com bolinha preta) */
 ul.result-list {
     list-style: none;
     margin: 0;
@@ -514,7 +513,6 @@ ul.result-list li::before {
     flex-shrink: 0;
 }
 
-/* Cores da caixa de resultado do Motorista conforme o desempenho da quilometragem */
 #mot-result.perf-baixa {
     background: #ffd2d2;
     border-left-color: var(--danger-color);
@@ -540,35 +538,6 @@ ul.result-list li::before {
 
 #mot-result.perf-otima .result-value {
     color: var(--success-color);
-}
-
-/* =========================================================
-   SEÇÕES INFORMATIVAS
-========================================================= */
-.info-section {
-    background: #ffffff;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 25px;
-    margin-top: 30px;
-}
-
-.info-section h3 {
-    font-size: 1.1rem;
-    color: var(--primary-color);
-    margin-bottom: 12px;
-}
-
-.info-section p, .info-section li {
-    font-size: 0.95rem;
-    color: #555;
-    line-height: 1.6;
-    margin-bottom: 8px;
-}
-
-.info-section ul {
-    list-style: disc;
-    padding-left: 20px;
 }
 
 /* =========================================================
@@ -610,8 +579,6 @@ footer {
         text-align: center;
     }
 
-    /* Todas as calculadoras: os campos empilham em 1 coluna no celular,
-       em vez de usar a largura mínima de 280px que estourava a tela */
     .form-grid {
         grid-template-columns: 1fr;
     }
@@ -628,7 +595,6 @@ footer {
         padding: 22px 18px;
     }
 
-    /* Regra de Três: empilha os campos e o conector para caber na tela do celular */
     .regra-tres-row {
         flex-direction: column;
         gap: 12px;
@@ -703,10 +669,6 @@ footer {
 
     .header-nav a {
         font-size: 0.8rem;
-    }
-
-    .nav-separator {
-        display: none;
     }
 
     .pwa-install-btn {
@@ -948,19 +910,9 @@ footer {
     line-height: 1.5;
 }
 
-@media screen and (min-width: 769px) {
-    main {
-        max-width: 900px;
-    }
-}
-
 /* =========================================================
-   CARD DE DOWNLOAD DO APP (PWA) & CORREÇÃO DE LARGURA
+   CARD DE DOWNLOAD DO APP (PWA)
 ========================================================= */
-main {
-    max-width: 1100px;
-}
-
 .pwa-download-card {
     background: linear-gradient(135deg, #ebf5fb 0%, #ffffff 100%);
     border: 2px solid var(--secondary-color);
@@ -1011,7 +963,7 @@ main {
     box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
 }
 
-/* Mostra o card apenas no celular (e apenas se NÃO for o app instalado) */
+/* Mostra o card apenas no celular */
 @media (max-width: 768px) {
     #pwa-download-card {
         display: block !important;
@@ -1026,12 +978,14 @@ main {
     }
 }
 
-/* Esconde o card no PC e no App instalado (PWA) */
+/* Esconde o card no PC */
 @media (min-width: 769px) {
     #pwa-download-card {
         display: none !important;
     }
 }
+
+/* Esconde o card no App Instalado */
 @media (display-mode: standalone) {
     #pwa-download-card {
         display: none !important;
