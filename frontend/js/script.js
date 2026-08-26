@@ -738,16 +738,16 @@ async function calcularAutonomos() {
 
     try {
         const data = await chamarAPI("/calculadora_autonomos", {
-            horas_trabalho: horas_trabalho,              
-            valor_hora: valor_hora,                      
-            margem_lucro: margem_lucro,                  
-            custos_operacionais: custos_operacionais,    
-            taxa_maquininha: taxa_maquininha,            
-            deslocamento: deslocamento,                  
-            custo_insumos: custo_insumos             
+            horas_trabalho: horas_trabalho,
+            valor_hora: valor_hora,
+            margem_lucro: margem_lucro,
+            custos_operacionais: custos_operacionais,
+            taxa_maquininha: taxa_maquininha,
+            deslocamento: deslocamento,
+            custo_insumos: custo_insumos
 
         });
-        
+
         const r = data.resultado;
 
         const box = document.getElementById("aut-result");
@@ -779,25 +779,3 @@ async function calcularAutonomos() {
         exibirErro("aut-result", "aut-val", "aut-exp", erro);
     }
 }
-
-// =========================================================
-// ESCONDER O CARD DE DOWNLOAD NO APP INSTALADO E NO PC
-// =========================================================
-
-function esconderCardNoApp() {
-    const pwaCard = document.getElementById('pwa-download-card');
-    if (!pwaCard) return;
-
-    // Detecta se está no modo App (standalone) ou no PC (desktop)
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    const isDesktop = window.innerWidth > 768;
-
-    if (isStandalone || isDesktop) {
-        pwaCard.style.display = 'none';
-    } else {
-        pwaCard.style.display = 'block';
-    }
-}
-
-// Executa ao carregar e ao redimensionar a tela
-window.addEventListener('DOMContentLoaded', esconderCardNoApp);
