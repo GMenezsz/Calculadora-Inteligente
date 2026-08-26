@@ -1046,40 +1046,79 @@ footer {
 }
 
 /* =========================================================
-   ESCONDER CARD DE DOWNLOAD NO PC
+   CARD DE DOWNLOAD DO APP (PWA) & CORREÇÃO DE LARGURA
 ========================================================= */
-/* Esconde o card em telas grandes (Desktop) */
-@media (min-width: 769px) {
-    #pwa-download-card {
-        display: none !important;
-    }
+.pwa-download-card {
+    background: linear-gradient(135deg, #ebf5fb 0%, #ffffff 100%);
+    border: 2px solid var(--secondary-color);
+    padding: 20px 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 6px 15px rgba(52, 152, 219, 0.15);
 }
 
-/* Mostra o card apenas em telas menores (Mobile) */
+.pwa-card-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.pwa-card-icon {
+    font-size: 3rem;
+    flex-shrink: 0;
+}
+
+.pwa-card-text h3 {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+.pwa-card-text p {
+    color: #555;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.pwa-warning {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 8px 12px;
+    border-radius: 6px;
+    color: #856404 !important;
+    font-size: 0.85rem !important;
+}
+
+.pwa-card-btn {
+    width: auto;
+    padding: 12px 25px;
+    font-size: 0.9rem;
+    display: inline-block;
+    border-radius: 30px;
+    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+}
+
+/* Mostra o card apenas no celular (e apenas se NÃO for o app instalado) */
 @media (max-width: 768px) {
     #pwa-download-card {
         display: block !important;
     }
-    
-    /* Mantém o layout do card responsivo para o celular */
     .pwa-card-content {
         flex-direction: column;
         text-align: center;
         gap: 10px;
     }
-    
     .pwa-card-btn {
         width: 100%;
     }
 }
 
-/* ESCONDER O CARD DE DOWNLOAD NO PC E NO APP (PWA) */
+/* Esconde o card no PC e no App instalado (PWA) */
 @media (min-width: 769px) {
     #pwa-download-card {
         display: none !important;
     }
 }
-
 @media (display-mode: standalone) {
     #pwa-download-card {
         display: none !important;
