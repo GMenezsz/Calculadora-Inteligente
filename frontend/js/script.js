@@ -136,6 +136,8 @@ function getValor(id) {
 // ---------------------------------------------------------
 
 function navigateTo(viewId) {
+    closeSidebar(); // fecha o menu mobile ao navegar
+
     const secoes = document.querySelectorAll(".view-section");
     secoes.forEach((secao) => secao.classList.remove("active"));
 
@@ -167,6 +169,23 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
+
+// ---------------------------------------------------------
+// MENU HAMBÚRGUER (MOBILE)
+// ---------------------------------------------------------
+function toggleSidebar() {
+    const aside = document.querySelector("aside");
+    const overlay = document.querySelector(".sidebar-overlay");
+    if (aside) aside.classList.toggle("sidebar-open");
+    if (overlay) overlay.classList.toggle("active");
+}
+
+function closeSidebar() {
+    const aside = document.querySelector("aside");
+    const overlay = document.querySelector(".sidebar-overlay");
+    if (aside) aside.classList.remove("sidebar-open");
+    if (overlay) overlay.classList.remove("active");
+}
 
 // ---------------------------------------------------------
 // PWA — Instalação
