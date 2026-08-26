@@ -380,20 +380,20 @@
 
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Prova parcial</label>
-                            <input type="text" id="med-parcial" placeholder="Ex: 70">
+                            <label>Prova parcial (0 a 10)</label>
+                            <input type="text" id="med-parcial" placeholder="Ex: 7,5">
                         </div>
                         <div class="form-group">
-                            <label>Prova global</label>
-                            <input type="text" id="med-global" placeholder="Ex: 65">
+                            <label>Prova global (0 a 10)</label>
+                            <input type="text" id="med-global" placeholder="Ex: 6,5">
                         </div>
                         <div class="form-group">
-                            <label>Trabalhos <span class="optional">(separados por vírgula)</span></label>
-                            <input type="text" id="med-trabalhos" placeholder="Ex: 80, 90">
+                            <label>Trabalhos <span class="optional">(Opcional, separados por vírgula)</span></label>
+                            <input type="text" id="med-trabalhos" placeholder="Ex: 8, 9">
                         </div>
                         <div class="form-group">
-                            <label>Pontos extras <span class="optional">(separados por vírgula)</span></label>
-                            <input type="text" id="med-extras" placeholder="Ex: 5">
+                            <label>Pontos extras <span class="optional">(Opcional, separados por vírgula)</span></label>
+                            <input type="text" id="med-extras" placeholder="Ex: 0,5">
                         </div>
                     </div>
 
@@ -450,7 +450,7 @@
                         </div>
                         <div class="form-group">
                             <label>Preço do combustível (R$)</label>
-                            <input type="text" id="comb-valor" placeholder="Ex: 6,24 ou R$ 6,24">
+                            <input type="text" id="comb-valor" class="money-input" placeholder="Ex: 6,24 ou R$ 6,24">
                         </div>
                     </div>
 
@@ -503,7 +503,7 @@
                         </div>
                         <div class="form-group">
                             <label>Ganhos brutos (R$)</label>
-                            <input type="text" id="mot-ganhos" placeholder="Ex: 450,00">
+                            <input type="text" id="mot-ganhos" class="money-input" placeholder="Ex: 450,00">
                         </div>
                         <div class="form-group">
                             <label>Consumo do veículo (km/l)</label>
@@ -511,19 +511,19 @@
                         </div>
                         <div class="form-group">
                             <label>Valor do combustível (R$)</label>
-                            <input type="text" id="mot-valor" placeholder="Ex: 5,89">
+                            <input type="text" id="mot-valor" class="money-input" placeholder="Ex: 5,89">
                         </div>
                         <div class="form-group">
                             <label>Alimentação <span class="optional">(Opcional)</span></label>
-                            <input type="text" id="mot-alim" placeholder="Ex: 30,00">
+                            <input type="text" id="mot-alim" class="money-input" placeholder="Ex: 30,00">
                         </div>
                         <div class="form-group">
                             <label>Café <span class="optional">(Opcional)</span></label>
-                            <input type="text" id="mot-cafe" placeholder="Ex: 7,50">
+                            <input type="text" id="mot-cafe" class="money-input" placeholder="Ex: 7,50">
                         </div>
                         <div class="form-group">
                             <label>Outros gastos <span class="optional">(Opcional)</span></label>
-                            <input type="text" id="mot-outros" placeholder="Ex: 20,00">
+                            <input type="text" id="mot-outros" class="money-input" placeholder="Ex: 20,00">
                         </div>
                     </div>
 
@@ -578,11 +578,11 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Preço do Álcool (R$)</label>
-                            <input type="text" id="alg-alcool" placeholder="Ex: 4,29">
+                            <input type="text" id="alg-alcool" class="money-input" placeholder="Ex: 4,29">
                         </div>
                         <div class="form-group">
                             <label>Preço da Gasolina (R$)</label>
-                            <input type="text" id="alg-gasolina" placeholder="Ex: 6,24">
+                            <input type="text" id="alg-gasolina" class="money-input" placeholder="Ex: 6,24">
                         </div>
                     </div>
 
@@ -591,6 +591,7 @@
                     <div id="alg-result" class="result-box">
                         <h3>Combustível Recomendado</h3>
                         <div id="alg-val" class="result-value">-</div>
+                        <div id="alg-exp" class="result-explanation"></div>
                     </div>
                 </div>
 
@@ -630,11 +631,11 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Salário líquido (R$)</label>
-                            <input type="text" id="gas-salario" placeholder="Ex: 4.500,00">
+                            <input type="text" id="gas-salario" class="money-input" placeholder="Ex: 4.500,00">
                         </div>
                         <div class="form-group">
-                            <label>Gastos essenciais (R$)</label>
-                            <input type="text" id="gas-essenciais" placeholder="Ex: 2.000,00">
+                            <label>Gastos fixos (R$)</label>
+                            <input type="text" id="gas-essenciais" class="money-input" placeholder="Ex: 2.000,00">
                         </div>
                     </div>
 
@@ -643,7 +644,7 @@
                     <div id="gas-result" class="result-box">
                         <h3>Distribuição do Orçamento</h3>
                         <div id="gas-val" class="result-value">-</div>
-                        <div id="gas-exp" class="result-explanation" style="white-space: pre-line;"></div>
+                        <ul id="gas-exp" class="result-explanation result-list"></ul>
                     </div>
                 </div>
 
@@ -683,7 +684,7 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Valor do produto (R$)</label>
-                            <input type="text" id="fin-valor" placeholder="Ex: 100.000,00">
+                            <input type="text" id="fin-valor" class="money-input" placeholder="Ex: 100.000,00">
                         </div>
                         <div class="form-group">
                             <label>Taxa de juros (% ao ano)</label>
@@ -695,7 +696,7 @@
                         </div>
                         <div class="form-group">
                             <label>Valor da entrada <span class="optional">(Opcional)</span></label>
-                            <input type="text" id="fin-entrada" placeholder="Ex: 20.000,00">
+                            <input type="text" id="fin-entrada" class="money-input" placeholder="Ex: 20.000,00">
                         </div>
                     </div>
 
@@ -704,6 +705,7 @@
                     <div id="fin-result" class="result-box">
                         <h3>Resultado da Simulação</h3>
                         <div id="fin-val" class="result-value">-</div>
+                        <ul id="fin-exp" class="result-explanation result-list"></ul>
                     </div>
                 </div>
 
@@ -743,11 +745,11 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Valor inicial (R$)</label>
-                            <input type="text" id="jc-inicial" placeholder="Ex: 1.000,00">
+                            <input type="text" id="jc-inicial" class="money-input" placeholder="Ex: 1.000,00">
                         </div>
                         <div class="form-group">
                             <label>Aporte mensal (R$)</label>
-                            <input type="text" id="jc-aporte" placeholder="Ex: 500,00">
+                            <input type="text" id="jc-aporte" class="money-input" placeholder="Ex: 500,00">
                         </div>
                         <div class="form-group">
                             <label>Taxa de juros (% ao ano)</label>
@@ -764,6 +766,7 @@
                     <div id="jc-result" class="result-box">
                         <h3>Montante Acumulado</h3>
                         <div id="jc-val" class="result-value">-</div>
+                        <ul id="jc-exp" class="result-explanation result-list"></ul>
                     </div>
                 </div>
 
@@ -815,7 +818,7 @@
                         </div>
                         <div class="form-group">
                             <label>Valor do kWh (R$)</label>
-                            <input type="text" id="el-kwh" placeholder="Ex: 0,85">
+                            <input type="text" id="el-kwh" class="money-input" placeholder="Ex: 0,85">
                         </div>
                     </div>
 
@@ -824,6 +827,7 @@
                     <div id="el-result" class="result-box">
                         <h3>Custo de Energia</h3>
                         <div id="el-val" class="result-value">R$ 0,00</div>
+                        <ul id="el-exp" class="result-explanation result-list"></ul>
                     </div>
                 </div>
 
@@ -863,7 +867,7 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Custos operacionais (R$)</label>
-                            <input type="text" id="aut-custos" placeholder="Ex: 500,00">
+                            <input type="text" id="aut-custos" class="money-input" placeholder="Ex: 500,00">
                         </div>
                         <div class="form-group">
                             <label>Horas de trabalho</label>
@@ -871,7 +875,7 @@
                         </div>
                         <div class="form-group">
                             <label>Valor da hora (R$)</label>
-                            <input type="text" id="aut-valorhora" placeholder="Ex: 50,00">
+                            <input type="text" id="aut-valorhora" class="money-input" placeholder="Ex: 50,00">
                         </div>
                         <div class="form-group">
                             <label>Margem de lucro (%)</label>
@@ -888,6 +892,7 @@
                     <div id="aut-result" class="result-box">
                         <h3>Preço Sugerido / Faturamento</h3>
                         <div id="aut-val" class="result-value">-</div>
+                        <ul id="aut-exp" class="result-explanation result-list"></ul>
                     </div>
                 </div>
 
