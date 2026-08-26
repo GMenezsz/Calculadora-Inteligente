@@ -801,4 +801,3 @@ function esconderCardNoApp() {
 
 // Executa ao carregar e ao redimensionar a tela
 window.addEventListener('DOMContentLoaded', esconderCardNoApp);
-window.addEventListener('resize', esconderCardNoApp);
