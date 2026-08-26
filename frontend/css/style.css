@@ -955,8 +955,12 @@ footer {
 }
 
 /* =========================================================
-   CARD DE DOWNLOAD DO APP (PWA)
+   CARD DE DOWNLOAD DO APP (PWA) & CORREÇÃO DE LARGURA
 ========================================================= */
+main {
+    max-width: 1100px;
+}
+
 .pwa-download-card {
     background: linear-gradient(135deg, #ebf5fb 0%, #ffffff 100%);
     border: 2px solid var(--secondary-color);
