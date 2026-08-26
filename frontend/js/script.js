@@ -6,6 +6,17 @@
 const API_BASE_URL = "https://calculadora-inteligente-api.onrender.com";
 
 // ---------------------------------------------------------
+// SERVICE WORKER — necessário para o PWA ser instalável
+// ---------------------------------------------------------
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("sw.js").catch((erro) => {
+            console.warn("Falha ao registrar o service worker:", erro);
+        });
+    });
+}
+
+// ---------------------------------------------------------
 // HELPERS GERAIS
 // ---------------------------------------------------------
 
@@ -163,6 +174,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
 let deferredPrompt = null;
 
+/** Detecta se o navegador é Safari no iOS/iPadOS (não suporta prompt automático). */
+function isIOS() {
+    return /iphone|ipad|ipod/i.test(navigator.userAgent);
+}
+
+/** Detecta se o app já está rodando "instalado" (modo standalone). */
+function isStandalone() {
+    return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+
+// Mostra o botão assim que a página carrega, se ainda não estiver instalado
+document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("pwa-btn");
+    if (btn && !isStandalone()) {
+        btn.style.display = "inline-block";
+    }
+});
+
+// Chrome/Android dispara este evento quando o site cumpre os requisitos de instalação
 window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
     deferredPrompt = event;
@@ -171,16 +201,30 @@ window.addEventListener("beforeinstallprompt", (event) => {
 });
 
 function installPWA() {
-    if (!deferredPrompt) {
-        alert("Para instalar, use a opção 'Adicionar à tela inicial' ou 'Instalar app' do seu navegador.");
+    // Android / Chrome / Edge: usa o prompt nativo do navegador
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.finally(() => {
+            deferredPrompt = null;
+            const btn = document.getElementById("pwa-btn");
+            if (btn) btn.style.display = "none";
+        });
         return;
     }
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.finally(() => {
-        deferredPrompt = null;
-        const btn = document.getElementById("pwa-btn");
-        if (btn) btn.style.display = "none";
-    });
+
+    // iPhone / iPad (Safari): não existe prompt automático, precisa instruir manualmente
+    if (isIOS()) {
+        alert(
+            "Para instalar no iPhone/iPad:\n\n" +
+            "1. Toque no ícone de compartilhar (o quadrado com uma seta ↑) na barra do Safari.\n" +
+            "2. Role para baixo e toque em 'Adicionar à Tela de Início'.\n" +
+            "3. Toque em 'Adicionar' no canto superior direito."
+        );
+        return;
+    }
+
+    // Outros navegadores/desktop sem suporte ao prompt automático
+    alert("Para instalar, procure a opção 'Instalar app' ou 'Adicionar à tela inicial' no menu do seu navegador.");
 }
 
 window.addEventListener("appinstalled", () => {
