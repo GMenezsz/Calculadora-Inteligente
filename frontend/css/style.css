@@ -328,9 +328,16 @@ main {
 
 .form-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px 24px;
     margin-bottom: 25px;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 .form-group {
@@ -343,6 +350,10 @@ main {
     font-size: 0.9rem;
     font-weight: 600;
     color: #444;
+    line-height: 1.3;
+    /* Reserva espaço para 2 linhas (rótulos com "Opcional" costumam quebrar),
+       assim o input sempre começa na mesma altura em toda a linha do grid. */
+    min-height: 2.6em;
 }
 
 .form-group label .optional {
