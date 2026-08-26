@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta name="google-site-verification" content="fwxjU97oa1LPgG6EgfjrAZz7rgrsovjFM0ZVfnPY2tk" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora Inteligente</title>
 
     <!-- FAVICON DO SITE -->
     <!-- Coloque o ícone da aba do navegador em: frontend/imagens/favicon.png -->
-    <link rel="icon" type="image/png" href="imagens/fav.png">
+    <link rel="icon" type="image/png" href="imagens/logo.png">
 
     <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -688,8 +687,8 @@
                             <input type="text" id="fin-valor" class="money-input" placeholder="Ex: 100.000,00">
                         </div>
                         <div class="form-group">
-                            <label>Taxa de juros (% ao ano)</label>
-                            <input type="text" id="fin-juros" placeholder="Ex: 12">
+                            <label>Taxa de juros (% ao mês)</label>
+                            <input type="text" id="fin-juros" placeholder="Ex: 1,2">
                         </div>
                         <div class="form-group">
                             <label>Prazo em anos</label>
@@ -867,7 +866,7 @@
 
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Custos operacionais (R$)</label>
+                            <label>Custos operacionais (R$) <span class="optional">(Opcional — ex: internet, luz, aluguel da loja)</span></label>
                             <input type="text" id="aut-custos" class="money-input" placeholder="Ex: 500,00">
                         </div>
                         <div class="form-group">
@@ -883,8 +882,16 @@
                             <input type="text" id="aut-margem" placeholder="Ex: 30">
                         </div>
                         <div class="form-group">
-                            <label>Taxa da maquininha (%) <span class="optional">(Opcional)</span></label>
+                            <label>Taxa da maquininha (%) <span class="optional">(Opcional — deixe em branco se recebe em dinheiro ou Pix)</span></label>
                             <input type="text" id="aut-taxamaq" placeholder="Ex: 3.5">
+                        </div>
+                        <div class="form-group">
+                            <label>Insumos (R$) <span class="optional">(Opcional, separados por vírgula)</span></label>
+                            <input type="text" id="aut-insumos" placeholder="Ex: 30,00, 15,50">
+                        </div>
+                        <div class="form-group">
+                            <label>Deslocamento (R$) <span class="optional">(Opcional, separados por vírgula)</span></label>
+                            <input type="text" id="aut-deslocamento" placeholder="Ex: 20,00">
                         </div>
                     </div>
 
