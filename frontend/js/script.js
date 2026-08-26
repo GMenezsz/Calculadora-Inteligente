@@ -392,7 +392,7 @@ async function calcularMotorista() {
             const itens = [
                 desempenho,
                 `Ganho por km: ${formatarBRL(r.ganhos_por_km)}`,
-                `Gastos com combustível R$: ${formatarBRL(r.custo_total_combustivel)}`,
+                `Gastos com combustível: ${formatarBRL(r.custo_total_combustivel)}`,
             ];
             itens.forEach((texto) => {
                 if (!texto) return;
