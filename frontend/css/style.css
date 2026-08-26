@@ -1072,3 +1072,16 @@ footer {
         width: 100%;
     }
 }
+
+/* ESCONDER O CARD DE DOWNLOAD NO PC E NO APP (PWA) */
+@media (min-width: 769px) {
+    #pwa-download-card {
+        display: none !important;
+    }
+}
+
+@media (display-mode: standalone) {
+    #pwa-download-card {
+        display: none !important;
+    }
+}
