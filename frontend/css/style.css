@@ -948,15 +948,4 @@ footer {
     line-height: 1.5;
 }
 
-@media screen and (min-width: 769px) {
-    main {
-        max-width: 800px;
-    }
-    
-    .form-grid {
-        grid-template-columns: 1fr 1fr !important;
-        column-gap: 30px;
-        row-gap: 20px;
-        align-items: start;
-    }
-}
+
