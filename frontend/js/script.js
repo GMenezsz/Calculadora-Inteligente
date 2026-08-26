@@ -779,3 +779,15 @@ async function calcularAutonomos() {
         exibirErro("aut-result", "aut-val", "aut-exp", erro);
     }
 }
+
+window.addEventListener('DOMContentLoaded', function() {
+    // Verifica se o app está rodando em modo standalone (instalado)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    
+    if (isStandalone) {
+        const pwaCard = document.getElementById('pwa-download-card');
+        if (pwaCard) {
+            pwaCard.style.display = 'none';
+        }
+    }
+});
