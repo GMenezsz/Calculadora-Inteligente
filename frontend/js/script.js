@@ -710,27 +710,41 @@ async function calcularEletrodomesticos() {
 // 10) AUTÔNOMOS
 // =========================================================
 async function calcularAutonomos() {
-    const custoOperacional = parseNumeroBR(getValor("aut-custos"));
+    const custosRaw = getValor("aut-custos");
+    const custoOperacional = custosRaw.trim() === "" ? null : parseNumeroBR(custosRaw);
+    const custos_operacionais = custoOperacional === null ? [] : [custoOperacional];
+
     const horas_trabalho = parseNumeroBR(getValor("aut-horas"));
     const valor_hora = parseNumeroBR(getValor("aut-valorhora"));
     const margem_lucro = parseNumeroBR(getValor("aut-margem"));
+
     const taxaMaqRaw = getValor("aut-taxamaq");
     const taxa_maquininha = taxaMaqRaw.trim() === "" ? null : parseNumeroBR(taxaMaqRaw);
 
-    if ([custoOperacional, horas_trabalho, valor_hora, margem_lucro].some((v) => isNaN(v))) {
-        exibirErro("aut-result", "aut-val", "aut-exp", new Error("Preencha custos, horas, valor da hora e margem de lucro."));
+    const custo_insumos_lista = parseListaBR(getValor("aut-insumos"));
+    const custo_insumos = custo_insumos_lista.length ? custo_insumos_lista : null;
+
+    const deslocamento_lista = parseListaBR(getValor("aut-deslocamento"));
+    const deslocamento = deslocamento_lista.length ? deslocamento_lista : null;
+
+    if ([horas_trabalho, valor_hora, margem_lucro].some((v) => isNaN(v))) {
+        exibirErro("aut-result", "aut-val", "aut-exp", new Error("Preencha horas, valor da hora e margem de lucro."));
+        return;
+    }
+    if (custoOperacional !== null && isNaN(custoOperacional)) {
+        exibirErro("aut-result", "aut-val", "aut-exp", new Error("Custos operacionais inválidos."));
         return;
     }
 
     try {
         const data = await chamarAPI("/calculadora_autonomos", {
-            custos_operacionais: [custoOperacional],
+            custos_operacionais,
             horas_trabalho,
             valor_hora,
             margem_lucro,
             taxa_maquininha,
-            deslocamento: null,
-            custo_insumos: null,
+            deslocamento,
+            custo_insumos,
         });
         const r = data.resultado;
 
@@ -740,7 +754,10 @@ async function calcularAutonomos() {
 
         if (box && val && exp) {
             const precoSugerido = r["preco_sugerido_R$"];
-            const custoTotal = custoOperacional;
+            const totalCustosOperacionais = custos_operacionais.reduce((s, v) => s + v, 0);
+            const totalInsumos = (custo_insumos || []).reduce((s, v) => s + v, 0);
+            const totalDeslocamento = (deslocamento || []).reduce((s, v) => s + v, 0);
+            const custoTotal = totalCustosOperacionais + totalInsumos + totalDeslocamento;
             const lucro = precoSugerido - custoTotal;
 
             val.textContent = `Preço sugerido: ${formatarBRL(precoSugerido)}`;
