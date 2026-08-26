@@ -132,6 +132,38 @@ function getValor(id) {
 }
 
 // ---------------------------------------------------------
+// MÁSCARA DE MOEDA (R$) — formata sozinho enquanto o usuário digita,
+// sem precisar que ele mesmo digite vírgulas e pontos.
+// ---------------------------------------------------------
+function aplicarMascaraMoeda(input) {
+    input.addEventListener("input", () => {
+        let digitos = input.value.replace(/\D/g, "");
+
+        if (digitos === "") {
+            input.value = "";
+            return;
+        }
+
+        // Garante ao menos 3 dígitos para sempre existirem 2 casas decimais
+        while (digitos.length < 3) {
+            digitos = "0" + digitos;
+        }
+
+        let parteInteira = digitos.slice(0, -2).replace(/^0+(?=\d)/, "");
+        const parteDecimal = digitos.slice(-2);
+
+        // Adiciona separador de milhar
+        parteInteira = parteInteira.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+        input.value = `${parteInteira},${parteDecimal}`;
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".money-input").forEach((input) => aplicarMascaraMoeda(input));
+});
+
+// ---------------------------------------------------------
 // NAVEGAÇÃO (SPA)
 // ---------------------------------------------------------
 
@@ -385,7 +417,7 @@ async function calcularMotorista() {
         const exp = document.getElementById("mot-exp");
 
         if (box && val && exp) {
-            val.textContent = `Lucro líquido: ${formatarBRL(r.lucro_liquido)}`;
+            val.textContent = `Saldo do dia: ${formatarBRL(r.lucro_liquido)}`;
 
             // Monta a lista de resultados, um item embaixo do outro (sem numeração, com bolinha)
             exp.innerHTML = "";
@@ -433,7 +465,7 @@ async function calcularAlcoolGasolina() {
     const valor_gasolina = parseNumeroBR(getValor("alg-gasolina"));
 
     if ([valor_alcool, valor_gasolina].some((v) => isNaN(v))) {
-        exibirErro("alg-result", "alg-val", null, new Error("Preencha os preços do álcool e da gasolina."));
+        exibirErro("alg-result", "alg-val", "alg-exp", new Error("Preencha os preços do álcool e da gasolina."));
         return;
     }
 
@@ -446,10 +478,12 @@ async function calcularAlcoolGasolina() {
         exibirResultado({
             boxId: "alg-result",
             valId: "alg-val",
+            expId: "alg-exp",
             valorTexto: `Vale mais a pena: ${r.melhor_opcao} (${formatarNumero(r.resultado)}%)`,
+            explicacaoTexto: `Isso significa que o preço do álcool corresponde a ${formatarNumero(r.resultado)}% do preço da gasolina. Quanto menor essa porcentagem, mais vantajoso é abastecer com álcool; quanto mais perto de 100%, mais a gasolina compensa.`,
         });
     } catch (erro) {
-        exibirErro("alg-result", "alg-val", null, erro);
+        exibirErro("alg-result", "alg-val", "alg-exp", erro);
     }
 }
 
@@ -461,7 +495,7 @@ async function calcularGastos() {
     const gastos_essenciais = parseNumeroBR(getValor("gas-essenciais"));
 
     if ([salario_liquido, gastos_essenciais].some((v) => isNaN(v))) {
-        exibirErro("gas-result", "gas-val", "gas-exp", new Error("Preencha o salário líquido e os gastos essenciais."));
+        exibirErro("gas-result", "gas-val", "gas-exp", new Error("Preencha o salário líquido e os gastos fixos."));
         return;
     }
 
@@ -471,19 +505,43 @@ async function calcularGastos() {
             gastos_essenciais,
         });
         const r = data.resultado;
-        const explicacao =
-            `Gastos essenciais: ${formatarBRL(r.gastos_essenciais_valor)} (${formatarNumero(r.gastos_essenciais_percentual)}%)\n` +
-            `Lazer (30%): ${formatarBRL(r.valor_lazer_30)}\n` +
-            `Guardar (20%): ${formatarBRL(r.valor_guardar_20)}`;
 
-        exibirResultado({
-            boxId: "gas-result",
-            valId: "gas-val",
-            expId: "gas-exp",
-            valorTexto: r.porcentagem_dentro_limite ? "Dentro do limite recomendado (até 50%)" : "Acima do limite recomendado (50%)",
-            explicacaoTexto: explicacao,
-            tipo: r.porcentagem_dentro_limite ? "success" : "danger",
-        });
+        const box = document.getElementById("gas-result");
+        const val = document.getElementById("gas-val");
+        const exp = document.getElementById("gas-exp");
+
+        if (box && val && exp) {
+            const percentual = r.gastos_essenciais_percentual;
+            const dentroDoLimite = r.porcentagem_dentro_limite;
+
+            exp.innerHTML = "";
+            const itens = [];
+
+            // Usa o valor que o usuário realmente digitou, em vez do valor devolvido pela API
+            itens.push(`Gastos fixos: ${formatarBRL(gastos_essenciais)} (${formatarNumero(percentual)}%)`);
+
+            if (dentroDoLimite) {
+                itens.push(`Lazer (30%): ${formatarBRL(r.valor_lazer_30)}`);
+                itens.push(`Guardar (20%): ${formatarBRL(r.valor_guardar_20)}`);
+            } else {
+                itens.push(
+                    "Seus gastos fixos já ultrapassam metade da sua renda. Antes de pensar em lazer ou em guardar dinheiro para a reserva de emergência, o ideal agora é colocar as contas em dia, priorizar o pagamento de dívidas e buscar reduzir esses gastos fixos para recuperar o equilíbrio financeiro."
+                );
+            }
+
+            itens.forEach((texto) => {
+                if (!texto) return;
+                const li = document.createElement("li");
+                li.textContent = texto;
+                exp.appendChild(li);
+            });
+
+            val.textContent = dentroDoLimite ? "Dentro do limite recomendado (até 50%)" : "Acima do limite recomendado (50%)";
+
+            box.classList.remove("success", "danger", "perf-baixa", "perf-boa", "perf-otima");
+            box.classList.add("active");
+            box.classList.add(dentroDoLimite ? "success" : "danger");
+        }
     } catch (erro) {
         exibirErro("gas-result", "gas-val", "gas-exp", erro);
     }
@@ -500,7 +558,7 @@ async function calcularFinanciamento() {
     const valor_entrada = entradaRaw.trim() === "" ? 0 : parseNumeroBR(entradaRaw);
 
     if ([valor, taxa_juros, ano].some((v) => isNaN(v)) || isNaN(valor_entrada)) {
-        exibirErro("fin-result", "fin-val", null, new Error("Preencha valor do produto, taxa de juros e prazo em anos."));
+        exibirErro("fin-result", "fin-val", "fin-exp", new Error("Preencha valor do produto, taxa de juros e prazo em anos."));
         return;
     }
 
@@ -512,13 +570,37 @@ async function calcularFinanciamento() {
             valor_entrada,
         });
         const r = data.resultado;
-        exibirResultado({
-            boxId: "fin-result",
-            valId: "fin-val",
-            valorTexto: `Parcela mensal: ${formatarBRL(r["Parcela mensal"])}`,
-        });
+
+        const box = document.getElementById("fin-result");
+        const val = document.getElementById("fin-val");
+        const exp = document.getElementById("fin-exp");
+
+        if (box && val && exp) {
+            const parcelaMensal = r["Parcela mensal"];
+            const prazoMeses = Math.round(ano * 12);
+            const valorFinanciado = valor - valor_entrada;
+            const valorTotalFinanciamento = parcelaMensal * prazoMeses;
+            const totalJuros = valorTotalFinanciamento - valorFinanciado;
+
+            val.textContent = `Parcela mensal: ${formatarBRL(parcelaMensal)}`;
+
+            exp.innerHTML = "";
+            const itens = [
+                `Valor total do financiamento: ${formatarBRL(valorTotalFinanciamento)}`,
+                `Total de juros: ${formatarBRL(totalJuros)}`,
+                `Prazo: ${prazoMeses} meses`,
+            ];
+            itens.forEach((texto) => {
+                const li = document.createElement("li");
+                li.textContent = texto;
+                exp.appendChild(li);
+            });
+
+            box.classList.remove("success", "danger", "perf-baixa", "perf-boa", "perf-otima");
+            box.classList.add("active", "success");
+        }
     } catch (erro) {
-        exibirErro("fin-result", "fin-val", null, erro);
+        exibirErro("fin-result", "fin-val", "fin-exp", erro);
     }
 }
 
@@ -532,26 +614,50 @@ async function calcularJurosCompostos() {
     const periodo_anos = parseNumeroBR(getValor("jc-periodo"));
 
     if ([valor_inicial, aporte_mensal, taxa_juros, periodo_anos].some((v) => isNaN(v))) {
-        exibirErro("jc-result", "jc-val", null, new Error("Preencha todos os campos com valores válidos."));
+        exibirErro("jc-result", "jc-val", "jc-exp", new Error("Preencha todos os campos com valores válidos."));
         return;
     }
 
     try {
+        const periodoMesesEnviado = Math.trunc(periodo_anos);
         const data = await chamarAPI("/calculadora_juros_compostos", {
             valor_inicial,
             aporte_mensal,
             taxa_juros,
-            periodo_anos: Math.trunc(periodo_anos),
+            periodo_anos: periodoMesesEnviado,
         });
         // A API retorna um objeto "resultado" aninhado duas vezes: data.resultado.resultado
         const r = (data.resultado && data.resultado.resultado) ? data.resultado.resultado : data.resultado;
-        exibirResultado({
-            boxId: "jc-result",
-            valId: "jc-val",
-            valorTexto: `Montante final: ${formatarBRL(r.montante_final)}`,
-        });
+
+        const box = document.getElementById("jc-result");
+        const val = document.getElementById("jc-val");
+        const exp = document.getElementById("jc-exp");
+
+        if (box && val && exp) {
+            const meses = periodoMesesEnviado * 12;
+            const totalInvestido = valor_inicial + aporte_mensal * meses;
+            const jurosGanho = r.montante_final - totalInvestido;
+            const rentabilidadeTotal = totalInvestido > 0 ? (jurosGanho / totalInvestido) * 100 : 0;
+
+            val.textContent = `Montante final: ${formatarBRL(r.montante_final)}`;
+
+            exp.innerHTML = "";
+            const itens = [
+                `Total investido: ${formatarBRL(totalInvestido)}`,
+                `Juros ganho: ${formatarBRL(jurosGanho)}`,
+                `Rentabilidade total: ${formatarNumero(rentabilidadeTotal)}%`,
+            ];
+            itens.forEach((texto) => {
+                const li = document.createElement("li");
+                li.textContent = texto;
+                exp.appendChild(li);
+            });
+
+            box.classList.remove("success", "danger", "perf-baixa", "perf-boa", "perf-otima");
+            box.classList.add("active", "success");
+        }
     } catch (erro) {
-        exibirErro("jc-result", "jc-val", null, erro);
+        exibirErro("jc-result", "jc-val", "jc-exp", erro);
     }
 }
 
@@ -565,7 +671,7 @@ async function calcularEletrodomesticos() {
     const valor_kwh = parseNumeroBR(getValor("el-kwh"));
 
     if ([potencia, horas_uso, dias_uso, valor_kwh].some((v) => isNaN(v))) {
-        exibirErro("el-result", "el-val", null, new Error("Preencha todos os campos com valores válidos."));
+        exibirErro("el-result", "el-val", "el-exp", new Error("Preencha todos os campos com valores válidos."));
         return;
     }
 
@@ -577,13 +683,26 @@ async function calcularEletrodomesticos() {
             valor_kwh,
         });
         const r = data.resultado;
-        exibirResultado({
-            boxId: "el-result",
-            valId: "el-val",
-            valorTexto: formatarBRL(r["custo_total_R$"]),
-        });
+
+        const box = document.getElementById("el-result");
+        const val = document.getElementById("el-val");
+        const exp = document.getElementById("el-exp");
+
+        if (box && val && exp) {
+            const consumoKwh = (potencia / 1000) * horas_uso * dias_uso;
+
+            val.textContent = `Custo de energia: ${formatarBRL(r["custo_total_R$"])}`;
+
+            exp.innerHTML = "";
+            const li = document.createElement("li");
+            li.textContent = `Consumo de energia: ${formatarNumero(consumoKwh)} kWh`;
+            exp.appendChild(li);
+
+            box.classList.remove("success", "danger", "perf-baixa", "perf-boa", "perf-otima");
+            box.classList.add("active", "success");
+        }
     } catch (erro) {
-        exibirErro("el-result", "el-val", null, erro);
+        exibirErro("el-result", "el-val", "el-exp", erro);
     }
 }
 
@@ -599,7 +718,7 @@ async function calcularAutonomos() {
     const taxa_maquininha = taxaMaqRaw.trim() === "" ? null : parseNumeroBR(taxaMaqRaw);
 
     if ([custoOperacional, horas_trabalho, valor_hora, margem_lucro].some((v) => isNaN(v))) {
-        exibirErro("aut-result", "aut-val", null, new Error("Preencha custos, horas, valor da hora e margem de lucro."));
+        exibirErro("aut-result", "aut-val", "aut-exp", new Error("Preencha custos, horas, valor da hora e margem de lucro."));
         return;
     }
 
@@ -614,12 +733,33 @@ async function calcularAutonomos() {
             custo_insumos: null,
         });
         const r = data.resultado;
-        exibirResultado({
-            boxId: "aut-result",
-            valId: "aut-val",
-            valorTexto: `Preço sugerido: ${formatarBRL(r["preco_sugerido_R$"])}`,
-        });
+
+        const box = document.getElementById("aut-result");
+        const val = document.getElementById("aut-val");
+        const exp = document.getElementById("aut-exp");
+
+        if (box && val && exp) {
+            const precoSugerido = r["preco_sugerido_R$"];
+            const custoTotal = custoOperacional;
+            const lucro = precoSugerido - custoTotal;
+
+            val.textContent = `Preço sugerido: ${formatarBRL(precoSugerido)}`;
+
+            exp.innerHTML = "";
+            const itens = [
+                `Custo total: ${formatarBRL(custoTotal)}`,
+                `Lucro: ${formatarBRL(lucro)}`,
+            ];
+            itens.forEach((texto) => {
+                const li = document.createElement("li");
+                li.textContent = texto;
+                exp.appendChild(li);
+            });
+
+            box.classList.remove("success", "danger", "perf-baixa", "perf-boa", "perf-otima");
+            box.classList.add("active", "success");
+        }
     } catch (erro) {
-        exibirErro("aut-result", "aut-val", null, erro);
+        exibirErro("aut-result", "aut-val", "aut-exp", erro);
     }
 }
