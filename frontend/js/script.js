@@ -780,14 +780,25 @@ async function calcularAutonomos() {
     }
 }
 
-window.addEventListener('DOMContentLoaded', function() {
-    // Verifica se o app está rodando em modo standalone (instalado)
+// =========================================================
+// ESCONDER O CARD DE DOWNLOAD NO APP INSTALADO E NO PC
+// =========================================================
+
+function esconderCardNoApp() {
+    const pwaCard = document.getElementById('pwa-download-card');
+    if (!pwaCard) return;
+
+    // Detecta se está no modo App (standalone) ou no PC (desktop)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    
-    if (isStandalone) {
-        const pwaCard = document.getElementById('pwa-download-card');
-        if (pwaCard) {
-            pwaCard.style.display = 'none';
-        }
+    const isDesktop = window.innerWidth > 768;
+
+    if (isStandalone || isDesktop) {
+        pwaCard.style.display = 'none';
+    } else {
+        pwaCard.style.display = 'block';
     }
-});
+}
+
+// Executa ao carregar e ao redimensionar a tela
+window.addEventListener('DOMContentLoaded', esconderCardNoApp);
+window.addEventListener('resize', esconderCardNoApp);
