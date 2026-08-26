@@ -802,3 +802,12 @@ function esconderCardNoApp() {
 // Executa ao carregar e ao redimensionar a tela
 window.addEventListener('DOMContentLoaded', esconderCardNoApp);
 window.addEventListener('resize', esconderCardNoApp);
+
+// Segurança extra para esconder o card (caso o CSS falhe)
+window.addEventListener('load', function() {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    if (isStandalone) {
+        const card = document.getElementById('pwa-download-card');
+        if (card) card.style.display = 'none';
+    }
+});
