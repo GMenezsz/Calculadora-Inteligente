@@ -754,11 +754,8 @@ async function calcularAutonomos() {
 
         if (box && val && exp) {
             const precoSugerido = r["preco_sugerido_R$"];
-            const totalCustosOperacionais = custos_operacionais.reduce((s, v) => s + v, 0);
-            const totalInsumos = (custo_insumos || []).reduce((s, v) => s + v, 0);
-            const totalDeslocamento = (deslocamento || []).reduce((s, v) => s + v, 0);
-            const custoTotal = totalCustosOperacionais + totalInsumos + totalDeslocamento;
-            const lucro = precoSugerido - custoTotal;
+            const custoTotal = r["custo_total_R$"];
+            const lucro = r["lucro_R$"];
 
             val.textContent = `Preço sugerido: ${formatarBRL(precoSugerido)}`;
 
