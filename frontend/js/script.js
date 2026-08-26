@@ -738,14 +738,16 @@ async function calcularAutonomos() {
 
     try {
         const data = await chamarAPI("/calculadora_autonomos", {
-            custos_operacionais,
-            horas_trabalho,
-            valor_hora,
-            margem_lucro,
-            taxa_maquininha,
-            deslocamento,
-            custo_insumos,
+            horas_trabalho: horas_trabalho,              
+            valor_hora: valor_hora,                      
+            margem_lucro: margem_lucro,                  
+            custos_operacionais: custos_operacionais,    
+            taxa_maquininha: taxa_maquininha,            
+            deslocamento: deslocamento,                  
+            custo_insumos: custo_insumos             
+
         });
+        
         const r = data.resultado;
 
         const box = document.getElementById("aut-result");
