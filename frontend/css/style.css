@@ -27,6 +27,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
 a {
@@ -398,6 +399,7 @@ main {
     gap: 15px;
     width: 100%;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 .regra-tres-row input {
@@ -405,6 +407,8 @@ main {
     border: 1px solid var(--border-color);
     border-radius: 6px;
     width: 200px;
+    max-width: 100%;
+    box-sizing: border-box;
     text-align: center;
 }
 
@@ -594,6 +598,20 @@ footer {
         flex-direction: column;
         gap: 10px;
         text-align: center;
+    }
+
+    /* Regra de Três: empilha os campos e o conector para caber na tela do celular */
+    .regra-tres-row {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .regra-tres-row .form-group {
+        width: 100%;
+    }
+
+    .regra-tres-row input {
+        width: 100%;
     }
 }
 
