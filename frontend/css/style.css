@@ -106,6 +106,10 @@ header {
     background-color: #f1f2f6;
 }
 
+.pwa-btn-text-short {
+    display: none;
+}
+
 /* =========================================================
    LAYOUT CONTAINER (Sidebar + Main Content)
 ========================================================= */
@@ -575,8 +579,8 @@ footer {
     }
 
     header {
-        padding: 12px 15px;
-        gap: 8px;
+        padding: 10px 12px;
+        gap: 6px;
     }
 
     .header-logo {
@@ -586,22 +590,34 @@ footer {
     .header-nav {
         flex: 1;
         justify-content: space-between;
-        gap: 4px;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .nav-home-icon {
+        display: none;
     }
 
     .header-nav a {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
     }
 
     .nav-separator {
-        font-size: 0.75rem;
+        display: none;
     }
 
     .pwa-install-btn {
-        font-size: 0.7rem;
-        padding: 6px 10px;
-        margin-left: 4px;
+        font-size: 0.75rem;
+        padding: 7px 12px;
         white-space: nowrap;
+    }
+
+    .pwa-btn-text-full {
+        display: none;
+    }
+
+    .pwa-btn-text-short {
+        display: inline;
     }
 
     aside {
