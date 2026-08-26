@@ -27,6 +27,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    -webkit-font-smoothing: antialiased;
 }
 
 a {
@@ -51,7 +52,7 @@ header {
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
 .header-logo {
@@ -83,7 +84,7 @@ header {
     font-size: 0.9rem;
     color: #555;
     font-weight: 500;
-    transition: color 0.2s;
+    transition: color 0.2s ease;
 }
 
 .header-nav a:hover {
@@ -98,8 +99,8 @@ header {
     font-weight: 600;
     font-size: 0.85rem;
     cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
 }
 
 .pwa-install-btn:hover {
@@ -140,7 +141,7 @@ aside {
     color: #4b6584;
     cursor: pointer;
     border-radius: 4px;
-    transition: background 0.2s;
+    transition: background 0.2s ease;
 }
 
 .sidebar-category-header:hover {
@@ -175,10 +176,11 @@ aside {
     font-size: 0.85rem;
     color: #636e72;
     border-radius: 4px;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
 }
 
-.sidebar-sublist a:hover, .sidebar-sublist a.active {
+.sidebar-sublist a:hover, 
+.sidebar-sublist a.active {
     background-color: #ebf5fb;
     color: var(--secondary-color);
     font-weight: 600;
@@ -192,6 +194,7 @@ main {
     padding: 40px;
     max-width: 1100px;
     margin: 0 auto;
+    width: 100%;
 }
 
 .view-section {
@@ -223,9 +226,10 @@ main {
 .card-container {
     background: var(--card-bg);
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
     padding: 35px;
     margin-bottom: 30px;
+    border: 1px solid var(--border-color);
 }
 
 .home-hero {
@@ -256,6 +260,7 @@ main {
     gap: 8px;
     border-bottom: 2px solid var(--border-color);
     padding-bottom: 8px;
+    color: var(--primary-color);
 }
 
 .grid-cards {
@@ -272,12 +277,12 @@ main {
     text-align: center;
     cursor: pointer;
     transition: all 0.25s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
 }
 
 .calc-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
     border-color: var(--secondary-color);
 }
 
@@ -336,19 +341,22 @@ main {
     font-size: 0.8rem;
 }
 
-.form-group input, .form-group select {
+.form-group input, 
+.form-group select {
     padding: 12px 15px;
     border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 0.95rem;
     background-color: #fafbfc;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
-.form-group input:focus, .form-group select:focus {
+.form-group input:focus, 
+.form-group select:focus {
     outline: none;
     border-color: var(--secondary-color);
     background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
 }
 
 .btn-calculate {
@@ -361,16 +369,21 @@ main {
     border-radius: 6px;
     cursor: pointer;
     width: 100%;
-    transition: background 0.2s;
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .btn-calculate:hover {
     background-color: #2980b9;
 }
 
+.btn-calculate:active {
+    transform: scale(0.99);
+}
+
 .btn-calculate:disabled {
     background-color: #bdc3c7;
     cursor: not-allowed;
+    transform: none;
 }
 
 /* =========================================================
@@ -429,6 +442,7 @@ main {
     padding: 20px;
     border-radius: 6px;
     display: none;
+    animation: fadeIn 0.3s ease-in-out;
 }
 
 .result-box.active {
@@ -441,7 +455,7 @@ main {
 }
 
 .result-box.danger {
-    background: #ffd2d2;
+    background: #fdeede;
     border-left-color: var(--danger-color);
 }
 
@@ -471,6 +485,11 @@ main {
     color: #555;
 }
 
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 /* =========================================================
    SEÇÕES INFORMATIVAS
 ========================================================= */
@@ -488,7 +507,8 @@ main {
     margin-bottom: 12px;
 }
 
-.info-section p, .info-section li {
+.info-section p, 
+.info-section li {
     font-size: 0.95rem;
     color: #555;
     line-height: 1.6;
@@ -530,18 +550,30 @@ footer {
     .app-container {
         flex-direction: column;
     }
+    
     aside {
         width: 100%;
         height: auto;
         border-right: none;
         border-bottom: 1px solid var(--border-color);
     }
+    
     main {
         padding: 20px;
     }
+    
     footer {
         flex-direction: column;
         gap: 10px;
         text-align: center;
+    }
+
+    .regra-tres-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .regra-tres-row input {
+        width: 100%;
     }
 }
