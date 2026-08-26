@@ -1038,3 +1038,9 @@ footer {
         width: 100%;
     }
 }
+
+@media (display-mode: standalone) {
+    #pwa-download-card {
+        display: none !important;
+    }
+}
