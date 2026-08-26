@@ -947,16 +947,18 @@ footer {
     color: #777;
     line-height: 1.5;
 }
-@media (min-width: 769px) {
-    main {
-        max-width: 800px;
-    }
-}
 
-@media (min-width: 769px) {
+@media screen and (min-width: 769px) {
+    main, .card-container {
+        max-width: 800px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+    
+    #view-autonomos .form-grid, 
     .form-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        column-gap: 30px;
-        row-gap: 20px;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        width: 100% !important;
     }
 }
