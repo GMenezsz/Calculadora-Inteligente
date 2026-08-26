@@ -105,7 +105,7 @@ function exibirResultado({ boxId, valId, expId = null, valorTexto, explicacaoTex
     val.textContent = valorTexto;
     if (exp) exp.textContent = explicacaoTexto;
 
-    box.classList.remove("success", "danger");
+    box.classList.remove("success", "danger", "perf-baixa", "perf-boa", "perf-otima");
     box.classList.add("active");
     if (tipo === "danger") {
         box.classList.add("danger");
@@ -378,14 +378,48 @@ async function calcularMotorista() {
             outros_gastos,
         });
         const r = data.resultado;
-        exibirResultado({
-            boxId: "mot-result",
-            valId: "mot-val",
-            expId: "mot-exp",
-            valorTexto: `Lucro líquido: ${formatarBRL(r.lucro_liquido)}`,
-            explicacaoTexto: `${data.desempenho} • Ganho por km: ${formatarBRL(r.ganhos_por_km)} • Combustível: ${formatarBRL(r.custo_total_combustivel)}`,
-            tipo: r.lucro_liquido < 0 ? "danger" : "success",
-        });
+        const desempenho = data.desempenho || "";
+
+        const box = document.getElementById("mot-result");
+        const val = document.getElementById("mot-val");
+        const exp = document.getElementById("mot-exp");
+
+        if (box && val && exp) {
+            val.textContent = `Lucro líquido: ${formatarBRL(r.lucro_liquido)}`;
+
+            // Monta a lista de resultados, um item embaixo do outro (sem numeração, com bolinha)
+            exp.innerHTML = "";
+            const itens = [
+                desempenho,
+                `Ganho por km: ${formatarBRL(r.ganhos_por_km)}`,
+                `Gastos com combustível R$: ${formatarBRL(r.custo_total_combustivel)}`,
+            ];
+            itens.forEach((texto) => {
+                if (!texto) return;
+                const li = document.createElement("li");
+                li.textContent = texto;
+                exp.appendChild(li);
+            });
+
+            // Define a cor da caixa de acordo com a qualidade da quilometragem (desempenho)
+            box.classList.remove("success", "danger", "perf-baixa", "perf-boa", "perf-otima");
+            box.classList.add("active");
+
+            const desempenhoNormalizado = desempenho
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLowerCase();
+
+            if (desempenhoNormalizado.includes("baixa")) {
+                box.classList.add("perf-baixa"); // vermelho
+            } else if (desempenhoNormalizado.includes("boa")) {
+                box.classList.add("perf-boa"); // amarelo
+            } else if (desempenhoNormalizado.includes("otima") || desempenhoNormalizado.includes("excelente")) {
+                box.classList.add("perf-otima"); // verde
+            } else {
+                box.classList.add(r.lucro_liquido < 0 ? "danger" : "success");
+            }
+        }
     } catch (erro) {
         exibirErro("mot-result", "mot-val", "mot-exp", erro);
     }
