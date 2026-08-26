@@ -637,3 +637,77 @@ footer {
         transform: translateX(0);
     }
 }
+
+/* =========================================================
+   PÁGINAS LEGAIS (PRIVACIDADE / TERMOS DE USO)
+========================================================= */
+.legal-updated {
+    color: #888;
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+.legal-content > p {
+    color: #444;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 16px;
+}
+
+.legal-section {
+    background: #fafbfc;
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--secondary-color);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+}
+
+.legal-section:last-child {
+    margin-bottom: 0;
+}
+
+.legal-section h3 {
+    font-size: 1.05rem;
+    color: var(--primary-color);
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.legal-section p {
+    color: #555;
+    font-size: 0.92rem;
+    line-height: 1.7;
+    margin-bottom: 10px;
+}
+
+.legal-section p:last-child {
+    margin-bottom: 0;
+}
+
+.legal-section ul,
+.legal-section ol {
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.legal-section ul {
+    list-style: disc;
+}
+
+.legal-section ol {
+    list-style: decimal;
+}
+
+.legal-section li {
+    color: #555;
+    font-size: 0.92rem;
+    line-height: 1.7;
+}
+
+.legal-section li strong {
+    color: var(--primary-color);
+}
