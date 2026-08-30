@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#2c3e50">
 
     <!-- CSS Separado -->
-    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body>
 
@@ -120,6 +120,19 @@
                     </a>
                 </div>
             </div>
+
+            <!-- Categoria Controle de Caixa -->
+            <div class="sidebar-category">
+                <div class="sidebar-category-header">
+                    <span>CONTROLE DE CAIXA</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="sidebar-sublist">
+                    <a href="#" onclick="navigateTo('view-caixa')" data-target="view-caixa">
+                        <span>💵 Controle de Caixa</span>
+                    </a>
+                </div>
+            </div>
         </aside>
 
         <!-- Overlay escuro atrás do menu no celular -->
@@ -209,6 +222,15 @@
                         <div class="grid-cards">
                             <div class="calc-card" onclick="navigateTo('view-autonomos')">
                                 <h4>Autônomo</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="category-group">
+                        <h3>💵 CONTROLE DE CAIXA</h3>
+                        <div class="grid-cards">
+                            <div class="calc-card" onclick="navigateTo('view-caixa')">
+                                <h4>Controle de Caixa</h4>
                             </div>
                         </div>
                     </div>
@@ -916,6 +938,92 @@
                 </div>
             </section>
 
+            <!-- 11.1 CONTROLE DE CAIXA -->
+            <section id="view-caixa" class="view-section">
+                <div class="breadcrumb">
+                    <span>Controle de Caixa</span> > <span class="current">Calculadora de Controle de Caixa</span>
+                </div>
+                <div class="card-container">
+                    <div class="calc-header-title">
+                        <h2>💵 Controle de Caixa</h2>
+                        <p>Confira o fechamento do caixa contando as notas em espécie e descontando as saídas do dia.</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Valor inicial do caixa (R$) <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="caixa-inicial" class="money-input" placeholder="Ex: 200,00">
+                        </div>
+                        <div class="form-group">
+                            <label>Valor de saída / sangria (R$) <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="caixa-saida" class="money-input" placeholder="Ex: 50,00">
+                        </div>
+                    </div>
+
+                    <p class="form-note">Quantidade de notas em caixa <span class="optional">(deixe em branco o campo de qualquer nota que você não tenha)</span></p>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Notas de R$ 100 <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="caixa-100" placeholder="Ex: 3">
+                        </div>
+                        <div class="form-group">
+                            <label>Notas de R$ 50 <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="caixa-50" placeholder="Ex: 5">
+                        </div>
+                        <div class="form-group">
+                            <label>Notas de R$ 20 <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="caixa-20" placeholder="Ex: 10">
+                        </div>
+                        <div class="form-group">
+                            <label>Notas de R$ 10 <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="caixa-10" placeholder="Ex: 8">
+                        </div>
+                        <div class="form-group">
+                            <label>Notas de R$ 5 <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="caixa-5" placeholder="Ex: 6">
+                        </div>
+                        <div class="form-group">
+                            <label>Notas de R$ 2 <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="caixa-2" placeholder="Ex: 4">
+                        </div>
+                        <div class="form-group">
+                            <label>Notas de R$ 1 <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="caixa-1" placeholder="Ex: 12">
+                        </div>
+                    </div>
+
+                    <button class="btn-calculate" onclick="calcularCaixa()">Calcular</button>
+
+                    <div id="caixa-result" class="result-box">
+                        <h3>Fechamento do Caixa</h3>
+                        <div id="caixa-val" class="result-value">-</div>
+                        <ul id="caixa-exp" class="result-explanation result-list"></ul>
+                    </div>
+                </div>
+
+                <div class="card-container">
+                    <div class="calc-header-title">
+                        <h2>💵 Controle de Caixa</h2>
+                        <p>Confira o fechamento do seu caixa em segundos!</p>
+                    </div>
+
+                    <div class="legal-content">
+                        <p>Ideal para lojistas, autônomos e caixas de estabelecimentos que precisam conferir rapidamente o total em espécie no fechamento do dia.</p>
+
+                        <div class="legal-section">
+                            <h3>🎯 Para que serve</h3>
+                            <p>Somar automaticamente as notas contadas (de R$100 a R$1) ao valor inicial do caixa, descontando as saídas (sangrias) realizadas durante o dia.</p>
+                        </div>
+
+                        <div class="legal-section">
+                            <h3>💡 Por que usar</h3>
+                            <p>Evita erros de contagem manual e divergências no fechamento de caixa, dando confiança e agilidade na hora de bater o caixa no fim do expediente.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- 12. POLÍTICA DE PRIVACIDADE -->
             <section id="view-privacy" class="view-section">
                 <div class="breadcrumb">
@@ -1034,6 +1142,6 @@
     </footer>
 
     <!-- JavaScript Separado -->
-    <script src="js/script.js"></script>
+    <script src="js/script.js?v=1"></script>
 </body>
 </html>
