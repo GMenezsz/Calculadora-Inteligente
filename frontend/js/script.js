@@ -131,6 +131,52 @@ function getValor(id) {
     return el ? el.value : "";
 }
 
+/**
+ * Lê um campo opcional: retorna null se estiver vazio, ou o número parseado.
+ * Se inteiro=true, trunca o valor (para quantidades, ex: número de notas).
+ * Retorna NaN se o campo tiver algo preenchido mas não for um número válido.
+ */
+function valorOuNulo(id, inteiro = false) {
+    const bruto = getValor(id).trim();
+    if (bruto === "") return null;
+    const numero = parseNumeroBR(bruto);
+    if (isNaN(numero)) return NaN;
+    return inteiro ? Math.trunc(numero) : numero;
+}
+
+/**
+ * Configura um campo de lista (valores separados por vírgula) para que vírgulas
+ * digitadas DENTRO de um número (seguidas de dígito) virem ponto decimal automaticamente.
+ * Assim, a vírgula "solta" (seguida de espaço ou fim do texto) continua sendo
+ * o separador da lista, sem ambiguidade entre "vírgula decimal" e "vírgula separadora".
+ * Ex: usuário digita "1,5, 2,3" -> vira "1.5, 2.3" -> lista = [1.5, 2.3]
+ */
+function configurarCampoListaDecimal(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.addEventListener("input", () => {
+        const cursorPos = el.selectionStart;
+        const valorOriginal = el.value;
+        // Vírgula seguida imediatamente de dígito => decimal (vira ponto)
+        // Vírgula seguida de espaço/fim de texto => permanece separador de lista
+        const valorCorrigido = valorOriginal.replace(/,(?=\d)/g, ".");
+
+        if (valorCorrigido !== valorOriginal) {
+            el.value = valorCorrigido;
+            // Substituição é 1-para-1 (mesmo tamanho), cursor não precisa de ajuste
+            el.setSelectionRange(cursorPos, cursorPos);
+        }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    configurarCampoListaDecimal("med-trabalhos");
+    configurarCampoListaDecimal("med-extras");
+    configurarCampoListaDecimal("aut-insumos");
+    configurarCampoListaDecimal("aut-deslocamento");
+});
+
 // ---------------------------------------------------------
 // MÁSCARA DE MOEDA (R$) — formata sozinho enquanto o usuário digita,
 // sem precisar que ele mesmo digite vírgulas e pontos.
@@ -777,5 +823,68 @@ async function calcularAutonomos() {
         }
     } catch (erro) {
         exibirErro("aut-result", "aut-val", "aut-exp", erro);
+    }
+}
+
+// =========================================================
+// 11) CONTROLE DE CAIXA
+// =========================================================
+async function calcularCaixa() {
+    // Todos os campos são opcionais: null se vazio, número se preenchido
+    const caixa = valorOuNulo("caixa-inicial");
+    const saida = valorOuNulo("caixa-saida");
+    const qtd_100 = valorOuNulo("caixa-100", true);
+    const qtd_50 = valorOuNulo("caixa-50", true);
+    const qtd_20 = valorOuNulo("caixa-20", true);
+    const qtd_10 = valorOuNulo("caixa-10", true);
+    const qtd_5 = valorOuNulo("caixa-5", true);
+    const qtd_2 = valorOuNulo("caixa-2", true);
+    const qtd_1 = valorOuNulo("caixa-1", true);
+
+    const camposPreenchidos = [caixa, saida, qtd_100, qtd_50, qtd_20, qtd_10, qtd_5, qtd_2, qtd_1];
+
+    // Se algum campo preenchido não for um número válido, avisa o erro
+    if (camposPreenchidos.some((v) => Number.isNaN(v))) {
+        exibirErro("caixa-result", "caixa-val", "caixa-exp", new Error("Preencha apenas números válidos nos campos (ou deixe em branco)."));
+        return;
+    }
+
+    try {
+        const data = await chamarAPI("/calculadora_caixa", {
+            caixa,
+            qtd_100,
+            qtd_50,
+            qtd_20,
+            qtd_10,
+            qtd_5,
+            qtd_2,
+            qtd_1,
+            saida,
+        });
+
+        const box = document.getElementById("caixa-result");
+        const val = document.getElementById("caixa-val");
+        const exp = document.getElementById("caixa-exp");
+
+        if (box && val && exp) {
+            val.textContent = `Total em caixa: ${formatarBRL(data.total_caixa)}`;
+
+            const caixaInicialTexto = data.caixa_inicial !== null && data.caixa_inicial !== undefined
+                ? formatarBRL(data.caixa_inicial)
+                : "Não informado";
+
+            exp.innerHTML = "";
+            const itens = [`Caixa inicial informado: ${caixaInicialTexto}`];
+            itens.forEach((texto) => {
+                const li = document.createElement("li");
+                li.textContent = texto;
+                exp.appendChild(li);
+            });
+
+            box.classList.remove("success", "danger", "perf-baixa", "perf-boa", "perf-otima");
+            box.classList.add("active", "success");
+        }
+    } catch (erro) {
+        exibirErro("caixa-result", "caixa-val", "caixa-exp", erro);
     }
 }
