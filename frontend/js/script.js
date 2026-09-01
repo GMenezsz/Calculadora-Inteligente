@@ -802,16 +802,25 @@ async function calcularAutonomos() {
 
         if (box && val && exp) {
             const precoSugerido = r["preco_sugerido_R$"];
-            const custoTotal = r["custo_total_R$"];
+            const custoMaterial = r["custo_material_R$"];
+            const maoDeObra = r["mao_de_obra_R$"];
+            const valorMaquininha = r["taxa_maquininha_R$"];
             const lucro = r["lucro_R$"];
+            const ganhoTotal = r["ganho_total_R$"];
 
             val.textContent = `Preço sugerido: ${formatarBRL(precoSugerido)}`;
 
             exp.innerHTML = "";
             const itens = [
-                `Custo total: ${formatarBRL(custoTotal)}`,
-                `Lucro: ${formatarBRL(lucro)}`,
+                `Mão de obra (sua hora): ${formatarBRL(maoDeObra)}`,
+                `Custo com material: ${formatarBRL(custoMaterial)}`,
             ];
+            if (valorMaquininha > 0) {
+                itens.push(`Taxa da maquininha: ${formatarBRL(valorMaquininha)}`);
+            }
+            itens.push(`Lucro (margem): ${formatarBRL(lucro)}`);
+            itens.push(`Você embolsa no total: ${formatarBRL(ganhoTotal)}`);
+
             itens.forEach((texto) => {
                 const li = document.createElement("li");
                 li.textContent = texto;
