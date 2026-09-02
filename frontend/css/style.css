@@ -1045,3 +1045,84 @@ main {
         display: none !important;
     }
 }
+
+/* =========================================================
+   MINI-CALCULADORA AUXILIAR (ex: custo de energia por hora)
+========================================================= */
+.mini-calc-toggle {
+    background: none;
+    border: none;
+    color: var(--secondary-color);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 4px 0;
+    margin-top: 4px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.mini-calc-toggle:hover {
+    text-decoration: underline;
+}
+
+.mini-calc-box {
+    display: none;
+    background: #f8f9fa;
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 14px;
+    margin-top: 8px;
+}
+
+.mini-calc-box.active {
+    display: block;
+}
+
+.mini-calc-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.mini-calc-field label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #666;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.mini-calc-field input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    background-color: #ffffff;
+}
+
+.mini-calc-btn {
+    width: 100%;
+    background-color: var(--secondary-color);
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.mini-calc-btn:hover {
+    background-color: #2980b9;
+}
+
+.mini-calc-hint {
+    font-size: 0.72rem;
+    color: #888;
+    margin-top: 8px;
+    margin-bottom: 0;
+    line-height: 1.4;
+}
