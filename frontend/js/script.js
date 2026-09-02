@@ -984,7 +984,8 @@ async function calcularImpressao3d() {
     const tempo_impressao = getValor("i3d-tempo").trim();
     const custo_energia = parseNumeroBR(getValor("i3d-custo-energia"));
     const custo_maquina = parseNumeroBR(getValor("i3d-custo-maquina"));
-    const margem_lucro_percentual = parseNumeroBR(getValor("i3d-margem"));
+    const margemRaw = getValor("i3d-margem").trim();
+    const margem_lucro_percentual = margemRaw === "" ? null : parseNumeroBR(margemRaw);
 
     const insumosLista = parseListaDecimal(getValor("i3d-insumos"));
     const insumos = insumosLista.length ? insumosLista : null;
@@ -995,8 +996,12 @@ async function calcularImpressao3d() {
     const deslocRaw = getValor("i3d-deslocamento").trim();
     const deslocamento_entrega = deslocRaw === "" ? null : parseNumeroBR(deslocRaw);
 
-    if ([filamento_g, preco_filamento_kg, custo_energia, custo_maquina, margem_lucro_percentual].some((v) => isNaN(v))) {
-        exibirErro("i3d-result", "i3d-val", "i3d-exp", new Error("Preencha gramas do filamento, preço do filamento, custo de energia, custo da máquina e margem de lucro."));
+    if ([filamento_g, preco_filamento_kg, custo_energia, custo_maquina].some((v) => isNaN(v))) {
+        exibirErro("i3d-result", "i3d-val", "i3d-exp", new Error("Preencha gramas do filamento, preço do filamento, custo de energia e custo da máquina."));
+        return;
+    }
+    if (Number.isNaN(margem_lucro_percentual)) {
+        exibirErro("i3d-result", "i3d-val", "i3d-exp", new Error("A margem de lucro precisa ser um número válido (ou deixe em branco)."));
         return;
     }
     if (!/^\d{1,2}:\d{2}$/.test(tempo_impressao)) {
