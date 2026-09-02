@@ -269,12 +269,35 @@ function aplicarMascaraTempo(input) {
     });
 }
 
+// ---------------------------------------------------------
+// MÁSCARA DE PESO (g) — usada no peso do filamento.
+// Diferente do dinheiro: NÃO empurra dígitos (digitar "120" continua "120",
+// não vira "1,20"). Só formata o separador de milhar e troca "." por ","
+// se a pessoa realmente digitar uma casa decimal.
+// ---------------------------------------------------------
+function aplicarMascaraPeso(input) {
+    input.addEventListener("input", () => {
+        let valor = input.value.replace(/\./g, ",");
+        valor = valor.replace(/[^\d,]/g, "");
+
+        const partes = valor.split(",");
+        let inteiro = partes[0] || "";
+        const decimal = partes.length > 1 ? partes.slice(1).join("") : null;
+
+        inteiro = inteiro.replace(/^0+(?=\d)/, "");
+        inteiro = inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+        input.value = decimal !== null ? `${inteiro},${decimal}` : inteiro;
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".decimal-input").forEach((input) => aplicarMascaraDecimalSimples(input));
     document.querySelectorAll(".int-input").forEach((input) => aplicarFiltroInteiro(input));
     document.querySelectorAll(".lista-moeda-input").forEach((input) => aplicarMascaraListaMoeda(input));
     document.querySelectorAll(".lista-simples-input").forEach((input) => aplicarFiltroListaSimples(input));
     document.querySelectorAll(".tempo-input").forEach((input) => aplicarMascaraTempo(input));
+    document.querySelectorAll(".peso-input").forEach((input) => aplicarMascaraPeso(input));
 });
 
 // ---------------------------------------------------------
