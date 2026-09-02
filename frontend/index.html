@@ -1037,6 +1037,21 @@
                         <div class="form-group">
                             <label>Custo de energia (R$/h)</label>
                             <input type="text" id="i3d-custo-energia" class="money-input" placeholder="Ex: 0,80">
+                            <button type="button" class="mini-calc-toggle" onclick="toggleMiniCalc('energia')">Não sabe o valor? Calcular ⌄</button>
+                            <div id="mini-calc-energia" class="mini-calc-box">
+                                <div class="mini-calc-row">
+                                    <div class="mini-calc-field">
+                                        <label>Potência (W)</label>
+                                        <input type="text" id="mini-energia-potencia" class="int-input" placeholder="Ex: 200">
+                                    </div>
+                                    <div class="mini-calc-field">
+                                        <label>Valor do kWh (R$)</label>
+                                        <input type="text" id="mini-energia-kwh" class="money-input" placeholder="Ex: 0,75">
+                                    </div>
+                                </div>
+                                <button type="button" class="mini-calc-btn" onclick="preencherCustoEnergia()">Preencher automaticamente</button>
+                                <p class="mini-calc-hint">Dica: veja a potência na etiqueta da fonte da impressora, e o valor do kWh na sua conta de luz.</p>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>Custo da máquina (R$/h)</label>
