@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#2c3e50">
 
     <!-- CSS Separado -->
-    <link rel="stylesheet" href="css/style.css?v=4">
+    <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body>
 
@@ -92,6 +92,9 @@
                     <a href="#" onclick="navigateTo('view-juros-compostos')" data-target="view-juros-compostos">
                         <span>📈 Juros Compostos</span>
                     </a>
+                    <a href="#" onclick="navigateTo('view-caixa')" data-target="view-caixa">
+                        <span>🧾 Controle de Caixa</span>
+                    </a>
                 </div>
             </div>
 
@@ -116,23 +119,14 @@
                 </div>
                 <div class="sidebar-sublist">
                     <a href="#" onclick="navigateTo('view-autonomos')" data-target="view-autonomos">
-                        <span>🛠️ Autônomo</span>
+                        <span>🛠️ Orçamento de Serviços</span>
+                    </a>
+                    <a href="#" onclick="navigateTo('view-impressao3d')" data-target="view-impressao3d">
+                        <span>🖨️ Impressão 3D</span>
                     </a>
                 </div>
             </div>
 
-            <!-- Categoria Controle de Caixa -->
-            <div class="sidebar-category">
-                <div class="sidebar-category-header">
-                    <span>CONTROLE DE CAIXA</span>
-                    <span class="arrow">▼</span>
-                </div>
-                <div class="sidebar-sublist">
-                    <a href="#" onclick="navigateTo('view-caixa')" data-target="view-caixa">
-                        <span>💵 Controle de Caixa</span>
-                    </a>
-                </div>
-            </div>
         </aside>
 
         <!-- Overlay escuro atrás do menu no celular -->
@@ -214,6 +208,9 @@
                             <div class="calc-card" onclick="navigateTo('view-juros-compostos')">
                                 <h4>Juros Compostos</h4>
                             </div>
+                            <div class="calc-card" onclick="navigateTo('view-caixa')">
+                                <h4>🧾 Controle de Caixa</h4>
+                            </div>
                         </div>
                     </div>
 
@@ -221,16 +218,10 @@
                         <h3>🛠️ AUTÔNOMO</h3>
                         <div class="grid-cards">
                             <div class="calc-card" onclick="navigateTo('view-autonomos')">
-                                <h4>Autônomo</h4>
+                                <h4>Orçamento de Serviços</h4>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="category-group">
-                        <h3>💵 CONTROLE DE CAIXA</h3>
-                        <div class="grid-cards">
-                            <div class="calc-card" onclick="navigateTo('view-caixa')">
-                                <h4>Controle de Caixa</h4>
+                            <div class="calc-card" onclick="navigateTo('view-impressao3d')">
+                                <h4>🖨️ Impressão 3D</h4>
                             </div>
                         </div>
                     </div>
@@ -325,12 +316,12 @@
                         <div class="regra-tres-row">
                             <div class="form-group" style="margin-bottom:0;">
                                 <label class="regra-tres-label">Primeira grandeza</label>
-                                <input type="text" id="rt-v1" placeholder="Ex: 10">
+                                <input type="text" id="rt-v1" class="decimal-input" placeholder="Ex: 10">
                             </div>
                             <span class="regra-tres-connector">está para</span>
                             <div class="form-group" style="margin-bottom:0;">
                                 <label class="regra-tres-label">Segunda grandeza</label>
-                                <input type="text" id="rt-v2" placeholder="Ex: 20">
+                                <input type="text" id="rt-v2" class="decimal-input" placeholder="Ex: 20">
                             </div>
                         </div>
 
@@ -339,7 +330,7 @@
                         <div class="regra-tres-row">
                             <div class="form-group" style="margin-bottom:0;">
                                 <label class="regra-tres-label">Terceira grandeza</label>
-                                <input type="text" id="rt-v3" placeholder="Ex: 30">
+                                <input type="text" id="rt-v3" class="decimal-input" placeholder="Ex: 30">
                             </div>
                             <span class="regra-tres-connector">está para</span>
                             <div class="form-group" style="margin-bottom:0;">
@@ -393,19 +384,19 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Prova parcial (0 a 10)</label>
-                            <input type="text" id="med-parcial" placeholder="Ex: 7,5">
+                            <input type="text" id="med-parcial" class="decimal-input" placeholder="Ex: 7,5">
                         </div>
                         <div class="form-group">
                             <label>Prova global (0 a 10)</label>
-                            <input type="text" id="med-global" placeholder="Ex: 6,5">
+                            <input type="text" id="med-global" class="decimal-input" placeholder="Ex: 6,5">
                         </div>
                         <div class="form-group">
                             <label>Trabalhos <span class="optional">(Opcional, separe por vírgula para somar)</span></label>
-                            <input type="text" id="med-trabalhos" placeholder="Ex: 8, 9">
+                            <input type="text" id="med-trabalhos" class="lista-simples-input" placeholder="Ex: 8.5, 9">
                         </div>
                         <div class="form-group">
-                            <label>Pontos extras <span class="optional">(Opcional, separe por virugla para somar)</span></label>
-                            <input type="text" id="med-extras" placeholder="Ex: 0,5">
+                            <label>Pontos extras <span class="optional">(Opcional, separe por vírgula para somar)</span></label>
+                            <input type="text" id="med-extras" class="lista-simples-input" placeholder="Ex: 0.5">
                         </div>
                     </div>
 
@@ -454,11 +445,11 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Distância percorrida (km)</label>
-                            <input type="text" id="comb-dist" placeholder="Ex: 350">
+                            <input type="text" id="comb-dist" class="decimal-input" placeholder="Ex: 350">
                         </div>
                         <div class="form-group">
                             <label>Consumo médio do veículo (km/l)</label>
-                            <input type="text" id="comb-consumo" placeholder="Ex: 12.5">
+                            <input type="text" id="comb-consumo" class="decimal-input" placeholder="Ex: 12.5">
                         </div>
                         <div class="form-group">
                             <label>Preço do combustível (R$)</label>
@@ -511,7 +502,7 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Distância (km)</label>
-                            <input type="text" id="mot-dist" placeholder="Ex: 200">
+                            <input type="text" id="mot-dist" class="decimal-input" placeholder="Ex: 200">
                         </div>
                         <div class="form-group">
                             <label>Ganhos brutos (R$)</label>
@@ -519,7 +510,7 @@
                         </div>
                         <div class="form-group">
                             <label>Consumo do veículo (km/l)</label>
-                            <input type="text" id="mot-consumo" placeholder="Ex: 10">
+                            <input type="text" id="mot-consumo" class="decimal-input" placeholder="Ex: 10">
                         </div>
                         <div class="form-group">
                             <label>Valor do combustível (R$)</label>
@@ -700,11 +691,11 @@
                         </div>
                         <div class="form-group">
                             <label>Taxa de juros (% ao mês)</label>
-                            <input type="text" id="fin-juros" placeholder="Ex: 1,2">
+                            <input type="text" id="fin-juros" class="decimal-input" placeholder="Ex: 1,2">
                         </div>
                         <div class="form-group">
                             <label>Prazo em anos</label>
-                            <input type="text" id="fin-ano" placeholder="Ex: 5">
+                            <input type="text" id="fin-ano" class="int-input" placeholder="Ex: 5">
                         </div>
                         <div class="form-group">
                             <label>Valor da entrada <span class="optional">(Opcional)</span></label>
@@ -765,11 +756,11 @@
                         </div>
                         <div class="form-group">
                             <label>Taxa de juros (% ao ano)</label>
-                            <input type="text" id="jc-taxa" placeholder="Ex: 10">
+                            <input type="text" id="jc-taxa" class="decimal-input" placeholder="Ex: 10">
                         </div>
                         <div class="form-group">
                             <label>Período (anos)</label>
-                            <input type="text" id="jc-periodo" placeholder="Ex: 10">
+                            <input type="text" id="jc-periodo" class="int-input" placeholder="Ex: 10">
                         </div>
                     </div>
 
@@ -804,6 +795,87 @@
                 </div>
             </section>
 
+            <!-- 9.1. CONTROLE DE CAIXA -->
+            <section id="view-caixa" class="view-section">
+                <div class="breadcrumb">
+                    <span>Finanças</span> > <span class="current">Controle de Caixa</span>
+                </div>
+                <div class="card-container">
+                    <div class="calc-header-title">
+                        <h2>Controle de Caixa</h2>
+                        <p>Conte as notas do caixa e confira se o total bate com o esperado.</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Caixa inicial (R$) <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="cx-caixa" class="money-input" placeholder="Ex: 100,00">
+                        </div>
+                        <div class="form-group">
+                            <label>Notas de R$100 <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="cx-qtd100" class="int-input" placeholder="Ex: 2">
+                        </div>
+                        <div class="form-group">
+                            <label>Notas de R$50 <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="cx-qtd50" class="int-input" placeholder="Ex: 3">
+                        </div>
+                        <div class="form-group">
+                            <label>Notas de R$20 <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="cx-qtd20" class="int-input" placeholder="Ex: 5">
+                        </div>
+                        <div class="form-group">
+                            <label>Notas de R$10 <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="cx-qtd10" class="int-input" placeholder="Ex: 4">
+                        </div>
+                        <div class="form-group">
+                            <label>Notas de R$5 <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="cx-qtd5" class="int-input" placeholder="Ex: 6">
+                        </div>
+                        <div class="form-group">
+                            <label>Notas de R$2 <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="cx-qtd2" class="int-input" placeholder="Ex: 8">
+                        </div>
+                        <div class="form-group">
+                            <label>Notas de R$1 <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="cx-qtd1" class="int-input" placeholder="Ex: 10">
+                        </div>
+                        <div class="form-group">
+                            <label>Saída / Sangria (R$) <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="cx-saida" class="money-input" placeholder="Ex: 50,00">
+                        </div>
+                    </div>
+
+                    <button class="btn-calculate" onclick="calcularCaixa()">Fechar Caixa</button>
+
+                    <div id="cx-result" class="result-box">
+                        <h3>Total em Caixa</h3>
+                        <div id="cx-val" class="result-value">R$ 0,00</div>
+                        <ul id="cx-exp" class="result-explanation result-list"></ul>
+                    </div>
+                </div>
+
+                <div class="card-container">
+                    <div class="calc-header-title">
+                        <h2>🧾 Controle de Caixa</h2>
+                        <p>Confira o fechamento do caixa contando nota por nota!</p>
+                    </div>
+
+                    <div class="legal-content">
+                        <p>Ideal para quem fecha o caixa no fim do turno ou do dia e precisa conferir se o dinheiro contado bate com o que era esperado.</p>
+
+                        <div class="legal-section">
+                            <h3>🎯 Para que serve</h3>
+                            <p>Somar a quantidade de notas de cada valor (R$100 a R$1), somar o caixa inicial e descontar qualquer saída ou sangria, chegando no total que deveria estar na gaveta.</p>
+                        </div>
+
+                        <div class="legal-section">
+                            <h3>💡 Por que usar</h3>
+                            <p>Evita erro de contagem manual, mostra rapidinho se falta ou sobra dinheiro no caixa e ajuda a identificar diferenças antes de fechar o expediente.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- 10. ELETRODOMÉSTICOS -->
             <section id="view-eletrodomesticos" class="view-section">
                 <div class="breadcrumb">
@@ -818,15 +890,15 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Potência (Watts)</label>
-                            <input type="text" id="el-potencia" placeholder="Ex: 1200">
+                            <input type="text" id="el-potencia" class="int-input" placeholder="Ex: 1200">
                         </div>
                         <div class="form-group">
                             <label>Horas de uso por dia</label>
-                            <input type="text" id="el-horas" placeholder="Ex: 4">
+                            <input type="text" id="el-horas" class="decimal-input" placeholder="Ex: 4">
                         </div>
                         <div class="form-group">
                             <label>Dias de uso</label>
-                            <input type="text" id="el-dias" placeholder="Ex: 30">
+                            <input type="text" id="el-dias" class="int-input" placeholder="Ex: 30">
                         </div>
                         <div class="form-group">
                             <label>Valor do kWh (R$)</label>
@@ -868,11 +940,11 @@
             <!-- 11. AUTÔNOMOS -->
             <section id="view-autonomos" class="view-section">
                 <div class="breadcrumb">
-                    <span>Autônomo</span> > <span class="current">Calculadora para Autônomos</span>
+                    <span>Autônomo</span> > <span class="current">Calculadora de Orçamento de Serviços</span>
                 </div>
                 <div class="card-container">
                     <div class="calc-header-title">
-                        <h2>Calculadora para Autônomos</h2>
+                        <h2>Calculadora de Orçamento de Serviços</h2>
                         <p>Precifique seus serviços cobrindo custos operacionais, insumos e margem de lucro.</p>
                     </div>
 
@@ -883,7 +955,7 @@
                         </div>
                         <div class="form-group">
                             <label>Horas de trabalho</label>
-                            <input type="text" id="aut-horas" placeholder="Ex: 160">
+                            <input type="text" id="aut-horas" class="decimal-input" placeholder="Ex: 160">
                         </div>
                         <div class="form-group">
                             <label>Valor da hora (R$)</label>
@@ -891,19 +963,19 @@
                         </div>
                         <div class="form-group">
                             <label>Margem de lucro (%)</label>
-                            <input type="text" id="aut-margem" placeholder="Ex: 30">
+                            <input type="text" id="aut-margem" class="decimal-input" placeholder="Ex: 30">
                         </div>
                         <div class="form-group">
                             <label>Taxa da maquininha (%) <span class="optional">(Opcional)</span></label>
-                            <input type="text" id="aut-taxamaq" placeholder="Ex: 3.5">
+                            <input type="text" id="aut-taxamaq" class="decimal-input" placeholder="Ex: 3.5">
                         </div>
                         <div class="form-group">
-                            <label>Insumos (R$) <span class="optional">(Opcional, separados por vírgula)</span></label>
-                            <input type="text" id="aut-insumos" placeholder="Ex: 30,00, 15,50">
+                            <label>Insumos (R$) <span class="optional">(Opcional, separe por vírgula)</span></label>
+                            <input type="text" id="aut-insumos" class="lista-moeda-input" placeholder="Ex: 30.00, 15.50">
                         </div>
                         <div class="form-group">
-                            <label>Deslocamento (R$) <span class="optional">(Opcional, separados por vírgula)</span></label>
-                            <input type="text" id="aut-deslocamento" placeholder="Ex: 20,00">
+                            <label>Deslocamento (R$) <span class="optional">(Opcional, separe por vírgula)</span></label>
+                            <input type="text" id="aut-deslocamento" class="lista-moeda-input" placeholder="Ex: 20.00">
                         </div>
                     </div>
 
@@ -918,7 +990,7 @@
 
                     <div class="card-container">
                     <div class="calc-header-title">
-                        <h2>🛠️ Calculadora para Autônomos</h2>
+                        <h2>🛠️ Calculadora de Orçamento de Serviços</h2>
                         <p>Descubra o preço ideal e o lucro real do seu trabalho!</p>
                     </div>
 
@@ -938,93 +1010,88 @@
                 </div>
             </section>
 
-            <!-- 11.1 CONTROLE DE CAIXA -->
-            <section id="view-caixa" class="view-section">
+            <!-- 11.1. IMPRESSÃO 3D -->
+            <section id="view-impressao3d" class="view-section">
                 <div class="breadcrumb">
-                    <span>Controle de Caixa</span> > <span class="current">Calculadora de Controle de Caixa</span>
+                    <span>Autônomo</span> > <span class="current">Calculadora de Impressão 3D</span>
                 </div>
                 <div class="card-container">
                     <div class="calc-header-title">
-                        <h2>💵 Controle de Caixa</h2>
-                        <p>Confira o fechamento do caixa contando as notas em espécie e descontando as saídas do dia.</p>
+                        <h2>Calculadora de Impressão 3D</h2>
+                        <p>Calcule o preço de venda da sua peça, cobrindo filamento, energia, máquina e lucro.</p>
                     </div>
 
                     <div class="form-grid">
                         <div class="form-group">
-                            <label>Valor inicial do caixa (R$) <span class="optional">(Opcional)</span></label>
-                            <input type="text" id="caixa-inicial" class="money-input" placeholder="Ex: 200,00">
+                            <label>Peso do filamento (g)</label>
+                            <input type="text" id="i3d-filamento-g" class="decimal-input" placeholder="Ex: 120">
                         </div>
                         <div class="form-group">
-                            <label>Valor de saída / sangria (R$) <span class="optional">(Opcional)</span></label>
-                            <input type="text" id="caixa-saida" class="money-input" placeholder="Ex: 50,00">
+                            <label>Preço do filamento (R$/Kg)</label>
+                            <input type="text" id="i3d-preco-kg" class="money-input" placeholder="Ex: 120,00">
+                        </div>
+                        <div class="form-group">
+                            <label>Tempo de impressão (HH:MM)</label>
+                            <input type="text" id="i3d-tempo" class="tempo-input" placeholder="Ex: 02:46">
+                        </div>
+                        <div class="form-group">
+                            <label>Custo de energia (R$/h)</label>
+                            <input type="text" id="i3d-custo-energia" class="money-input" placeholder="Ex: 0,80">
+                        </div>
+                        <div class="form-group">
+                            <label>Custo da máquina (R$/h)</label>
+                            <input type="text" id="i3d-custo-maquina" class="money-input" placeholder="Ex: 1,50">
+                        </div>
+                        <div class="form-group">
+                            <label>Margem de lucro (%)</label>
+                            <input type="text" id="i3d-margem" class="decimal-input" placeholder="Ex: 40">
+                        </div>
+                        <div class="form-group">
+                            <label>Taxa da maquininha (%) <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="i3d-taxa-maq" class="decimal-input" placeholder="Ex: 3.5">
+                        </div>
+                        <div class="form-group">
+                            <label>Insumos (R$) <span class="optional">(Opcional, separe por vírgula)</span></label>
+                            <input type="text" id="i3d-insumos" class="lista-moeda-input" placeholder="Ex: 5.00, 2.50">
+                        </div>
+                        <div class="form-group">
+                            <label>Deslocamento / Entrega (R$) <span class="optional">(Opcional)</span></label>
+                            <input type="text" id="i3d-deslocamento" class="money-input" placeholder="Ex: 15,00">
                         </div>
                     </div>
 
-                    <p class="form-note">Quantidade de notas e moedas em caixa <span class="optional">(deixe em branco o campo de qualquer nota/moeda que você não tenha)</span></p>
+                    <button class="btn-calculate" onclick="calcularImpressao3d()">Calcular</button>
 
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Notas de R$ 100 <span class="optional">(Opcional)</span></label>
-                            <input type="text" id="caixa-100" placeholder="Ex: 3">
-                        </div>
-                        <div class="form-group">
-                            <label>Notas de R$ 50 <span class="optional">(Opcional)</span></label>
-                            <input type="text" id="caixa-50" placeholder="Ex: 5">
-                        </div>
-                        <div class="form-group">
-                            <label>Notas de R$ 20 <span class="optional">(Opcional)</span></label>
-                            <input type="text" id="caixa-20" placeholder="Ex: 10">
-                        </div>
-                        <div class="form-group">
-                            <label>Notas de R$ 10 <span class="optional">(Opcional)</span></label>
-                            <input type="text" id="caixa-10" placeholder="Ex: 8">
-                        </div>
-                        <div class="form-group">
-                            <label>Notas de R$ 5 <span class="optional">(Opcional)</span></label>
-                            <input type="text" id="caixa-5" placeholder="Ex: 6">
-                        </div>
-                        <div class="form-group">
-                            <label>Notas de R$ 2 <span class="optional">(Opcional)</span></label>
-                            <input type="text" id="caixa-2" placeholder="Ex: 4">
-                        </div>
-                        <div class="form-group">
-                            <label>Moedas de R$ 1 <span class="optional">(Opcional)</span></label>
-                            <input type="text" id="caixa-1" placeholder="Ex: 12">
-                        </div>
-                    </div>
-
-                    <button class="btn-calculate" onclick="calcularCaixa()">Calcular</button>
-
-                    <div id="caixa-result" class="result-box">
-                        <h3>Fechamento do Caixa</h3>
-                        <div id="caixa-val" class="result-value">-</div>
-                        <ul id="caixa-exp" class="result-explanation result-list"></ul>
+                    <div id="i3d-result" class="result-box">
+                        <h3>Preço Sugerido</h3>
+                        <div id="i3d-val" class="result-value">-</div>
+                        <ul id="i3d-exp" class="result-explanation result-list"></ul>
                     </div>
                 </div>
 
                 <div class="card-container">
                     <div class="calc-header-title">
-                        <h2>💵 Controle de Caixa</h2>
-                        <p>Confira o fechamento do seu caixa em segundos!</p>
+                        <h2>🖨️ Calculadora de Impressão 3D</h2>
+                        <p>Precifique suas peças impressas sem deixar dinheiro na mesa!</p>
                     </div>
 
                     <div class="legal-content">
-                        <p>Ideal para lojistas, autônomos e caixas de estabelecimentos que precisam conferir rapidamente o total em espécie no fechamento do dia.</p>
+                        <p>Feita para quem vende peças, miniaturas ou protótipos impressos em 3D e precisa de um preço justo, cobrindo tudo o que a impressão realmente custa.</p>
 
                         <div class="legal-section">
                             <h3>🎯 Para que serve</h3>
-                            <p>Somar automaticamente as notas contadas (de R$100 a R$1) ao valor inicial do caixa, descontando as saídas (sangrias) realizadas durante o dia.</p>
+                            <p>Somar o custo do filamento usado, o consumo de energia e o desgaste da máquina durante o tempo de impressão, além de insumos extras e deslocamento para entrega, aplicando a margem de lucro e a taxa da maquininha desejadas.</p>
                         </div>
 
                         <div class="legal-section">
                             <h3>💡 Por que usar</h3>
-                            <p>Evita erros de contagem manual e divergências no fechamento de caixa, dando confiança e agilidade na hora de bater o caixa no fim do expediente.</p>
+                            <p>Evita cobrar barato demais achando que só o filamento importa — energia, tempo de máquina e taxas comem parte do lucro se não forem contabilizados.</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- 12. POLÍTICA DE PRIVACIDADE -->
+            <!-- 13. POLÍTICA DE PRIVACIDADE -->
             <section id="view-privacy" class="view-section">
                 <div class="breadcrumb">
                     <span>Início</span> > <span class="current">Política de Privacidade</span>
@@ -1142,6 +1209,6 @@
     </footer>
 
     <!-- JavaScript Separado -->
-    <script src="js/script.js?v=1"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>
