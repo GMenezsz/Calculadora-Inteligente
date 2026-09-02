@@ -1052,3 +1052,31 @@ async function calcularImpressao3d() {
         exibirErro("i3d-result", "i3d-val", "i3d-exp", erro);
     }
 }
+
+// ---------------------------------------------------------
+// MINI-CALCULADORA AUXILIAR: custo de energia por hora (R$/h)
+// Ajuda quem não sabe de cabeça a taxa por hora do equipamento,
+// calculando a partir da potência (W) e do valor do kWh.
+// ---------------------------------------------------------
+function toggleMiniCalc(nome) {
+    const box = document.getElementById(`mini-calc-${nome}`);
+    if (box) box.classList.toggle("active");
+}
+
+function preencherCustoEnergia() {
+    const potencia = parseNumeroBR(getValor("mini-energia-potencia"));
+    const valorKwh = parseNumeroBR(getValor("mini-energia-kwh"));
+
+    if (isNaN(potencia) || isNaN(valorKwh)) {
+        alert("Preencha a potência (W) e o valor do kWh pra calcular.");
+        return;
+    }
+
+    const taxaPorHora = (potencia / 1000) * valorKwh;
+
+    const campoDestino = document.getElementById("i3d-custo-energia");
+    if (campoDestino) {
+        // Mesmo formato que a máscara de moeda produz: "0,10" (vírgula, sem R$)
+        campoDestino.value = taxaPorHora.toFixed(2).replace(".", ",");
+    }
+}
