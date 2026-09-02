@@ -71,14 +71,14 @@ function parseNumeroBR(valor) {
     return numero;
 }
 
-/** Converte uma string "80, 90, 100" em uma lista de números, ignorando itens vazios. */
-function parseListaBR(valor) {
+/** Converte uma lista "30.00, 15.50" (ponto decimal, vírgula separando) em números. */
+function parseListaDecimal(valor) {
     if (!valor || String(valor).trim() === "") return [];
     return String(valor)
         .split(",")
         .map((item) => item.trim())
         .filter((item) => item !== "")
-        .map((item) => parseNumeroBR(item))
+        .map((item) => parseFloat(item))
         .filter((num) => !isNaN(num));
 }
 
@@ -131,52 +131,6 @@ function getValor(id) {
     return el ? el.value : "";
 }
 
-/**
- * Lê um campo opcional: retorna null se estiver vazio, ou o número parseado.
- * Se inteiro=true, trunca o valor (para quantidades, ex: número de notas).
- * Retorna NaN se o campo tiver algo preenchido mas não for um número válido.
- */
-function valorOuNulo(id, inteiro = false) {
-    const bruto = getValor(id).trim();
-    if (bruto === "") return null;
-    const numero = parseNumeroBR(bruto);
-    if (isNaN(numero)) return NaN;
-    return inteiro ? Math.trunc(numero) : numero;
-}
-
-/**
- * Configura um campo de lista (valores separados por vírgula) para que vírgulas
- * digitadas DENTRO de um número (seguidas de dígito) virem ponto decimal automaticamente.
- * Assim, a vírgula "solta" (seguida de espaço ou fim do texto) continua sendo
- * o separador da lista, sem ambiguidade entre "vírgula decimal" e "vírgula separadora".
- * Ex: usuário digita "1,5, 2,3" -> vira "1.5, 2.3" -> lista = [1.5, 2.3]
- */
-function configurarCampoListaDecimal(id) {
-    const el = document.getElementById(id);
-    if (!el) return;
-
-    el.addEventListener("input", () => {
-        const cursorPos = el.selectionStart;
-        const valorOriginal = el.value;
-        // Vírgula seguida imediatamente de dígito => decimal (vira ponto)
-        // Vírgula seguida de espaço/fim de texto => permanece separador de lista
-        const valorCorrigido = valorOriginal.replace(/,(?=\d)/g, ".");
-
-        if (valorCorrigido !== valorOriginal) {
-            el.value = valorCorrigido;
-            // Substituição é 1-para-1 (mesmo tamanho), cursor não precisa de ajuste
-            el.setSelectionRange(cursorPos, cursorPos);
-        }
-    });
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    configurarCampoListaDecimal("med-trabalhos");
-    configurarCampoListaDecimal("med-extras");
-    configurarCampoListaDecimal("aut-insumos");
-    configurarCampoListaDecimal("aut-deslocamento");
-});
-
 // ---------------------------------------------------------
 // MÁSCARA DE MOEDA (R$) — formata sozinho enquanto o usuário digita,
 // sem precisar que ele mesmo digite vírgulas e pontos.
@@ -207,6 +161,120 @@ function aplicarMascaraMoeda(input) {
 
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".money-input").forEach((input) => aplicarMascaraMoeda(input));
+});
+
+// ---------------------------------------------------------
+// MÁSCARA DECIMAL SIMPLES — campos numéricos que não são dinheiro
+// (proporções, percentuais, consumo, gramas...). Só troca "." por ","
+// automaticamente e trava mais de uma casa decimal, sem "empurrar" dígitos.
+// ---------------------------------------------------------
+function aplicarMascaraDecimalSimples(input) {
+    input.addEventListener("input", () => {
+        let valor = input.value.replace(/\./g, ",");
+        valor = valor.replace(/[^\d,]/g, "");
+
+        const partes = valor.split(",");
+        if (partes.length > 2) {
+            valor = partes[0] + "," + partes.slice(1).join("");
+        }
+
+        input.value = valor;
+    });
+}
+
+// ---------------------------------------------------------
+// FILTRO DE NÚMERO INTEIRO — só dígitos (potência, dias, prazo em anos...)
+// ---------------------------------------------------------
+function aplicarFiltroInteiro(input) {
+    input.addEventListener("input", () => {
+        input.value = input.value.replace(/\D/g, "");
+    });
+}
+
+// ---------------------------------------------------------
+// MÁSCARA DE LISTA EM DINHEIRO — campos tipo "Insumos", "Deslocamento":
+// vírgula sempre separa um item do outro, então o decimal de cada item
+// é formatado sozinho com PONTO (dígitos entrando da direita, igual dinheiro).
+// Ex: digitar "3000" vira "30.00"; digitar "," começa o próximo item.
+// ---------------------------------------------------------
+function aplicarMascaraListaMoeda(input) {
+    input.addEventListener("input", () => {
+        const partes = input.value.split(",");
+        const formatadas = partes.map((parte) => {
+            let digitos = parte.replace(/\D/g, "");
+            if (digitos === "") return "";
+
+            while (digitos.length < 3) {
+                digitos = "0" + digitos;
+            }
+
+            let inteiro = digitos.slice(0, -2).replace(/^0+(?=\d)/, "");
+            const decimal = digitos.slice(-2);
+            return `${inteiro}.${decimal}`;
+        });
+
+        input.value = formatadas.join(", ");
+    });
+}
+
+// ---------------------------------------------------------
+// FILTRO DE LISTA SIMPLES — campos tipo "Trabalhos", "Pontos extras":
+// vírgula sempre separa um item do outro; ponto é o decimal (digitado
+// literalmente, sem forçar 2 casas). Só limpa caracteres inválidos e
+// evita mais de um ponto dentro do mesmo item.
+// ---------------------------------------------------------
+function aplicarFiltroListaSimples(input) {
+    input.addEventListener("input", () => {
+        let valor = input.value.replace(/[^\d.,]/g, "");
+        valor = valor
+            .split(",")
+            .map((item) => {
+                const partesPonto = item.split(".");
+                if (partesPonto.length > 2) {
+                    return partesPonto[0] + "." + partesPonto.slice(1).join("");
+                }
+                return item;
+            })
+            .join(",");
+        input.value = valor;
+    });
+}
+
+// ---------------------------------------------------------
+// MÁSCARA DE TEMPO (HH:MM) — usada no tempo de impressão 3D.
+// Mesma lógica da máscara de dinheiro: os 2 últimos dígitos são os
+// minutos, o resto vira hora. Ex: digitar "246" vira "02:46".
+// ---------------------------------------------------------
+function aplicarMascaraTempo(input) {
+    input.addEventListener("input", () => {
+        let digitos = input.value.replace(/\D/g, "");
+
+        if (digitos === "") {
+            input.value = "";
+            return;
+        }
+
+        while (digitos.length < 3) {
+            digitos = "0" + digitos;
+        }
+
+        let horas = digitos.slice(0, -2).replace(/^0+(?=\d)/, "");
+        if (horas === "") horas = "0";
+        horas = horas.padStart(2, "0");
+
+        let minutos = digitos.slice(-2);
+        if (parseInt(minutos, 10) > 59) minutos = "59";
+
+        input.value = `${horas}:${minutos}`;
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".decimal-input").forEach((input) => aplicarMascaraDecimalSimples(input));
+    document.querySelectorAll(".int-input").forEach((input) => aplicarFiltroInteiro(input));
+    document.querySelectorAll(".lista-moeda-input").forEach((input) => aplicarMascaraListaMoeda(input));
+    document.querySelectorAll(".lista-simples-input").forEach((input) => aplicarFiltroListaSimples(input));
+    document.querySelectorAll(".tempo-input").forEach((input) => aplicarMascaraTempo(input));
 });
 
 // ---------------------------------------------------------
@@ -362,8 +430,8 @@ async function calcularRegraTres() {
 async function calcularMedia() {
     const prova_parcial = parseNumeroBR(getValor("med-parcial"));
     const prova_global = parseNumeroBR(getValor("med-global"));
-    const trabalhos = parseListaBR(getValor("med-trabalhos"));
-    const pontos_extras = parseListaBR(getValor("med-extras"));
+    const trabalhos = parseListaDecimal(getValor("med-trabalhos"));
+    const pontos_extras = parseListaDecimal(getValor("med-extras"));
 
     if (isNaN(prova_parcial) || isNaN(prova_global)) {
         exibirErro("med-result", "med-val", "med-exp", new Error("Preencha a prova parcial e a prova global."));
@@ -767,10 +835,10 @@ async function calcularAutonomos() {
     const taxaMaqRaw = getValor("aut-taxamaq");
     const taxa_maquininha = taxaMaqRaw.trim() === "" ? null : parseNumeroBR(taxaMaqRaw);
 
-    const custo_insumos_lista = parseListaBR(getValor("aut-insumos"));
+    const custo_insumos_lista = parseListaDecimal(getValor("aut-insumos"));
     const custo_insumos = custo_insumos_lista.length ? custo_insumos_lista : null;
 
-    const deslocamento_lista = parseListaBR(getValor("aut-deslocamento"));
+    const deslocamento_lista = parseListaDecimal(getValor("aut-deslocamento"));
     const deslocamento = deslocamento_lista.length ? deslocamento_lista : null;
 
     if ([horas_trabalho, valor_hora, margem_lucro].some((v) => isNaN(v))) {
@@ -802,36 +870,16 @@ async function calcularAutonomos() {
 
         if (box && val && exp) {
             const precoSugerido = r["preco_sugerido_R$"];
-            const custoOperacional = r["custo_operacional_R$"];
-            const custoMaterial = r["custo_material_R$"];
-            const valorDeslocamento = r["deslocamento_R$"];
-            const maoDeObra = r["mao_de_obra_R$"];
-            const valorMaquininha = r["taxa_maquininha_R$"];
+            const custoTotal = r["custo_total_R$"];
             const lucro = r["lucro_R$"];
-            const ganhoTotal = r["ganho_total_R$"];
 
             val.textContent = `Preço sugerido: ${formatarBRL(precoSugerido)}`;
 
             exp.innerHTML = "";
-            const itens = [`Mão de obra (sua hora): ${formatarBRL(maoDeObra)}`];
-
-            // Cada campo opcional só aparece na lista se o usuário informou algum valor
-            if (custos_operacionais.length && custoOperacional > 0) {
-                itens.push(`Custo operacional: ${formatarBRL(custoOperacional)}`);
-            }
-            if (custo_insumos && custo_insumos.length && custoMaterial > 0) {
-                itens.push(`Custo com insumos: ${formatarBRL(custoMaterial)}`);
-            }
-            if (deslocamento && deslocamento.length && valorDeslocamento > 0) {
-                itens.push(`Deslocamento: ${formatarBRL(valorDeslocamento)}`);
-            }
-            if (taxa_maquininha !== null && valorMaquininha > 0) {
-                itens.push(`Taxa da maquininha: ${formatarBRL(valorMaquininha)}`);
-            }
-
-            itens.push(`Lucro (margem): ${formatarBRL(lucro)}`);
-            itens.push(`Você embolsa no total: ${formatarBRL(ganhoTotal)}`);
-
+            const itens = [
+                `Custo total: ${formatarBRL(custoTotal)}`,
+                `Lucro: ${formatarBRL(lucro)}`,
+            ];
             itens.forEach((texto) => {
                 const li = document.createElement("li");
                 li.textContent = texto;
@@ -850,51 +898,69 @@ async function calcularAutonomos() {
 // 11) CONTROLE DE CAIXA
 // =========================================================
 async function calcularCaixa() {
-    // Todos os campos são opcionais: null se vazio, número se preenchido
-    const caixa = valorOuNulo("caixa-inicial");
-    const saida = valorOuNulo("caixa-saida");
-    const qtd_100 = valorOuNulo("caixa-100", true);
-    const qtd_50 = valorOuNulo("caixa-50", true);
-    const qtd_20 = valorOuNulo("caixa-20", true);
-    const qtd_10 = valorOuNulo("caixa-10", true);
-    const qtd_5 = valorOuNulo("caixa-5", true);
-    const qtd_2 = valorOuNulo("caixa-2", true);
-    const qtd_1 = valorOuNulo("caixa-1", true);
-
-    const camposPreenchidos = [caixa, saida, qtd_100, qtd_50, qtd_20, qtd_10, qtd_5, qtd_2, qtd_1];
-
-    // Se algum campo preenchido não for um número válido, avisa o erro
-    if (camposPreenchidos.some((v) => Number.isNaN(v))) {
-        exibirErro("caixa-result", "caixa-val", "caixa-exp", new Error("Preencha apenas números válidos nos campos (ou deixe em branco)."));
-        return;
+    function lerDinheiroOuNulo(id) {
+        const raw = getValor(id).trim();
+        if (raw === "") return null;
+        const numero = parseNumeroBR(raw);
+        return isNaN(numero) ? null : numero;
     }
 
-    try {
-        const data = await chamarAPI("/calculadora_caixa", {
-            caixa,
-            qtd_100,
-            qtd_50,
-            qtd_20,
-            qtd_10,
-            qtd_5,
-            qtd_2,
-            qtd_1,
-            saida,
-        });
+    function lerQtdOuNulo(id) {
+        const raw = getValor(id).trim();
+        if (raw === "") return null;
+        const numero = parseInt(raw, 10);
+        return isNaN(numero) ? null : numero;
+    }
 
-        const box = document.getElementById("caixa-result");
-        const val = document.getElementById("caixa-val");
-        const exp = document.getElementById("caixa-exp");
+    const DENOMINACOES = [
+        { valor: 100, id: "cx-qtd100" },
+        { valor: 50, id: "cx-qtd50" },
+        { valor: 20, id: "cx-qtd20" },
+        { valor: 10, id: "cx-qtd10" },
+        { valor: 5, id: "cx-qtd5" },
+        { valor: 2, id: "cx-qtd2" },
+        { valor: 1, id: "cx-qtd1" },
+    ];
+
+    const caixa = lerDinheiroOuNulo("cx-caixa");
+    const saida = lerDinheiroOuNulo("cx-saida");
+
+    const payload = { caixa, saida };
+    DENOMINACOES.forEach((d) => {
+        payload[`qtd_${d.valor}`] = lerQtdOuNulo(d.id);
+    });
+
+    try {
+        const data = await chamarAPI("/calculadora_caixa", payload);
+
+        // Monta o detalhamento localmente (a API só devolve o total)
+        let somaNotas = 0;
+        const itens = [];
+        DENOMINACOES.forEach((d) => {
+            const qtd = lerQtdOuNulo(d.id) || 0;
+            if (qtd > 0) {
+                const subtotal = qtd * d.valor;
+                somaNotas += subtotal;
+                itens.push(`R$${d.valor} × ${qtd} = ${formatarBRL(subtotal)}`);
+            }
+        });
+        if (caixa) itens.unshift(`Caixa inicial: ${formatarBRL(caixa)}`);
+        if (saida) itens.push(`(–) Saída: ${formatarBRL(saida)}`);
+
+        let total = typeof data.total_caixa === "number" ? data.total_caixa : NaN;
+        if (isNaN(total)) {
+            // Reserva: se a API devolver em outro formato, calcula localmente
+            total = (caixa || 0) + somaNotas - (saida || 0);
+        }
+
+        const box = document.getElementById("cx-result");
+        const val = document.getElementById("cx-val");
+        const exp = document.getElementById("cx-exp");
 
         if (box && val && exp) {
-            val.textContent = `Total em caixa: ${formatarBRL(data.total_caixa)}`;
-
-            const caixaInicialTexto = data.caixa_inicial !== null && data.caixa_inicial !== undefined
-                ? formatarBRL(data.caixa_inicial)
-                : "Não informado";
+            val.textContent = `Total em caixa: ${formatarBRL(total)}`;
 
             exp.innerHTML = "";
-            const itens = [`Caixa inicial informado: ${caixaInicialTexto}`];
             itens.forEach((texto) => {
                 const li = document.createElement("li");
                 li.textContent = texto;
@@ -905,6 +971,77 @@ async function calcularCaixa() {
             box.classList.add("active", "success");
         }
     } catch (erro) {
-        exibirErro("caixa-result", "caixa-val", "caixa-exp", erro);
+        exibirErro("cx-result", "cx-val", "cx-exp", erro);
+    }
+}
+
+// =========================================================
+// 12) IMPRESSÃO 3D
+// =========================================================
+async function calcularImpressao3d() {
+    const filamento_g = parseNumeroBR(getValor("i3d-filamento-g"));
+    const preco_filamento_kg = parseNumeroBR(getValor("i3d-preco-kg"));
+    const tempo_impressao = getValor("i3d-tempo").trim();
+    const custo_energia = parseNumeroBR(getValor("i3d-custo-energia"));
+    const custo_maquina = parseNumeroBR(getValor("i3d-custo-maquina"));
+    const margem_lucro_percentual = parseNumeroBR(getValor("i3d-margem"));
+
+    const insumosLista = parseListaDecimal(getValor("i3d-insumos"));
+    const insumos = insumosLista.length ? insumosLista : null;
+
+    const taxaMaqRaw = getValor("i3d-taxa-maq").trim();
+    const taxa_maquininha = taxaMaqRaw === "" ? null : parseNumeroBR(taxaMaqRaw);
+
+    const deslocRaw = getValor("i3d-deslocamento").trim();
+    const deslocamento_entrega = deslocRaw === "" ? null : parseNumeroBR(deslocRaw);
+
+    if ([filamento_g, preco_filamento_kg, custo_energia, custo_maquina, margem_lucro_percentual].some((v) => isNaN(v))) {
+        exibirErro("i3d-result", "i3d-val", "i3d-exp", new Error("Preencha gramas do filamento, preço do filamento, custo de energia, custo da máquina e margem de lucro."));
+        return;
+    }
+    if (!/^\d{1,2}:\d{2}$/.test(tempo_impressao)) {
+        exibirErro("i3d-result", "i3d-val", "i3d-exp", new Error("Informe o tempo de impressão no formato HH:MM."));
+        return;
+    }
+
+    try {
+        const data = await chamarAPI("/calculadora_3d", {
+            filamento_g,
+            preco_filamento_kg,
+            tempo_impressao,
+            custo_energia,
+            custo_maquina,
+            margem_lucro_percentual,
+            insumos,
+            taxa_maquininha,
+            deslocamento_entrega,
+        });
+        const r = data.resultado;
+
+        const box = document.getElementById("i3d-result");
+        const val = document.getElementById("i3d-val");
+        const exp = document.getElementById("i3d-exp");
+
+        if (box && val && exp) {
+            val.textContent = `Preço sugerido: ${formatarBRL(r.preco_sugerido)}`;
+
+            exp.innerHTML = "";
+            const itens = [
+                `Custo total: ${formatarBRL(r.custo_total)}`,
+                `Custo de energia: ${formatarBRL(r.custo_energia)}`,
+                `Custo da máquina: ${formatarBRL(r.custo_maquina)}`,
+                `Lucro líquido: ${formatarBRL(r.lucro_liquido)}`,
+            ];
+            itens.forEach((texto) => {
+                const li = document.createElement("li");
+                li.textContent = texto;
+                exp.appendChild(li);
+            });
+
+            box.classList.remove("success", "danger", "perf-baixa", "perf-boa", "perf-otima");
+            box.classList.add("active", "success");
+        }
+    } catch (erro) {
+        exibirErro("i3d-result", "i3d-val", "i3d-exp", erro);
     }
 }
