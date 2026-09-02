@@ -340,18 +340,6 @@ main {
     }
 }
 
-.form-note {
-    font-size: 0.85rem;
-    color: #777;
-    margin-bottom: 12px;
-    margin-top: -10px;
-}
-
-.form-note .optional {
-    font-weight: normal;
-    color: #999;
-}
-
 .form-group {
     display: flex;
     flex-direction: column;
