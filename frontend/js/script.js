@@ -780,12 +780,16 @@ async function calcularJurosCompostos() {
 // =========================================================
 async function calcularEletrodomesticos() {
     const potencia = parseNumeroBR(getValor("el-potencia"));
-    const horas_uso = parseNumeroBR(getValor("el-horas"));
+    const horas_uso = getValor("el-horas").trim();
     const dias_uso = parseNumeroBR(getValor("el-dias"));
     const valor_kwh = parseNumeroBR(getValor("el-kwh"));
 
-    if ([potencia, horas_uso, dias_uso, valor_kwh].some((v) => isNaN(v))) {
-        exibirErro("el-result", "el-val", "el-exp", new Error("Preencha todos os campos com valores válidos."));
+    if ([potencia, dias_uso, valor_kwh].some((v) => isNaN(v))) {
+        exibirErro("el-result", "el-val", "el-exp", new Error("Preencha potência, dias de uso e valor do kWh com valores válidos."));
+        return;
+    }
+    if (!/^\d{1,2}:\d{2}$/.test(horas_uso)) {
+        exibirErro("el-result", "el-val", "el-exp", new Error("Informe as horas de uso no formato HH:MM (ex: 02:30)."));
         return;
     }
 
@@ -803,13 +807,11 @@ async function calcularEletrodomesticos() {
         const exp = document.getElementById("el-exp");
 
         if (box && val && exp) {
-            const consumoKwh = (potencia / 1000) * horas_uso * dias_uso;
-
             val.textContent = `Custo de energia: ${formatarBRL(r["custo_total_R$"])}`;
 
             exp.innerHTML = "";
             const li = document.createElement("li");
-            li.textContent = `Consumo de energia: ${formatarNumero(consumoKwh)} kWh`;
+            li.textContent = `Consumo de energia: ${formatarNumero(r.consumo_energia_kwh)} kWh`;
             exp.appendChild(li);
 
             box.classList.remove("success", "danger", "perf-baixa", "perf-boa", "perf-otima");
