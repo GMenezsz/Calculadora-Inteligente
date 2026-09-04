@@ -872,9 +872,7 @@ async function calcularAutonomos() {
 
         if (box && val && exp) {
             const precoSugerido = r["preco_sugerido_R$"];
-            const custoOperacional = r["custo_operacional_R$"];
-            const custoMaterial = r["custo_material_R$"];
-            const valorDeslocamento = r["deslocamento_R$"];
+            const custoTotal = r["custo_total_R$"];
             const maoDeObra = r["mao_de_obra_R$"];
             const valorMaquininha = r["taxa_maquininha_R$"];
             const lucro = r["lucro_R$"];
@@ -883,22 +881,13 @@ async function calcularAutonomos() {
             val.textContent = `Preço sugerido: ${formatarBRL(precoSugerido)}`;
 
             exp.innerHTML = "";
-            const itens = [`Mão de obra (sua hora): ${formatarBRL(maoDeObra)}`];
-
-            // Cada campo opcional só aparece na lista se o usuário informou algum valor
-            if (custos_operacionais.length && custoOperacional > 0) {
-                itens.push(`Custo operacional: ${formatarBRL(custoOperacional)}`);
-            }
-            if (custo_insumos && custo_insumos.length && custoMaterial > 0) {
-                itens.push(`Custo com insumos: ${formatarBRL(custoMaterial)}`);
-            }
-            if (deslocamento && deslocamento.length && valorDeslocamento > 0) {
-                itens.push(`Deslocamento: ${formatarBRL(valorDeslocamento)}`);
-            }
+            const itens = [
+                `Custo total: ${formatarBRL(custoTotal)}`,
+                `Mão de obra (sua hora): ${formatarBRL(maoDeObra)}`,
+            ];
             if (taxa_maquininha !== null && valorMaquininha > 0) {
                 itens.push(`Taxa da maquininha: ${formatarBRL(valorMaquininha)}`);
             }
-
             itens.push(`Lucro (margem): ${formatarBRL(lucro)}`);
             itens.push(`Você recebe líquido no total: ${formatarBRL(ganhoTotal)}`);
 
@@ -1053,15 +1042,11 @@ async function calcularImpressao3d() {
             val.textContent = `Preço sugerido: ${formatarBRL(r.preco_sugerido)}`;
 
             exp.innerHTML = "";
-            const itens = [
-                `Custo total: ${formatarBRL(r.custo_total)}`,
-                `Custo de energia: ${formatarBRL(r.custo_energia)}`,
-                `Custo da máquina: ${formatarBRL(r.custo_maquina)}`,
-            ];
+            const itens = [`Custo total: ${formatarBRL(r.custo_total)}`];
             if (r.valor_maquininha > 0) {
                 itens.push(`Taxa da maquininha: ${formatarBRL(r.valor_maquininha)}`);
             }
-            itens.push(`Lucro líquido: ${formatarBRL(r.lucro_liquido)}`);
+            itens.push(`Lucro (margem): ${formatarBRL(r.lucro_liquido)}`);
             itens.push(`Você recebe líquido no total: ${formatarBRL(r.recebido_liquido)}`);
 
             itens.forEach((texto) => {
