@@ -1,10 +1,10 @@
 // =========================================================
-// sw.js — Service Worker Atualizado
+// sw.js — Nexus Calc — Service Worker Atualizado
 // Estratégia: Network First (Sempre atualiza quando tem internet)
 // =========================================================
 
 // ⚠️ MUDE ESSE NÚMERO SEMPRE QUE ATUALIZAR O SITE!
-const CACHE_NAME = "calculadora-inteligente-v2.0.0"; 
+const CACHE_NAME = "nexus-calc-v3.0.0"; 
 
 const ARQUIVOS_PARA_CACHE = [
     "./",
@@ -44,6 +44,16 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
     // Não interceptar chamadas para a API (deixa sempre ir direto pra rede)
     if (event.request.url.includes("calculadora-inteligente-api.onrender.com")) {
+        return;
+    }
+
+    // Não interceptar a logo do Nexus Finance (sempre buscar em tempo real)
+    if (event.request.url.includes("nexus-finance-lemon.vercel.app")) {
+        return;
+    }
+
+    // Só cuida de requisições do próprio domínio
+    if (new URL(event.request.url).origin !== self.location.origin) {
         return;
     }
 
