@@ -200,6 +200,64 @@ aside {
 }
 
 /* =========================================================
+   NEXUS HUB (ecossistema Nexus na sidebar)
+========================================================= */
+.nexus-hub-category {
+    padding-bottom: 12px;
+    margin-bottom: 18px;
+    border-bottom: 1px dashed var(--border-color, #e0e0e0);
+}
+
+.nexus-hub-category .sidebar-category-header {
+    color: #6c5ce7;
+    letter-spacing: 0.5px;
+}
+
+.nexus-hub-category .sidebar-category-header:hover {
+    background-color: #f0eefc;
+}
+
+.sidebar-sublist a.nexus-hub-link {
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar-sublist a.nexus-hub-link:hover {
+    background-color: #f0eefc;
+    color: #6c5ce7;
+}
+
+.nexus-hub-logo-wrap {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    overflow: hidden;
+    background-color: #f1f2f6;
+}
+
+.nexus-hub-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.nexus-hub-logo.carregada {
+    opacity: 1;
+}
+
+.nexus-hub-external {
+    margin-left: auto;
+    font-size: 0.75rem;
+    opacity: 0.6;
+}
+
+/* =========================================================
    MAIN CONTENT AREA
 ========================================================= */
 main {
