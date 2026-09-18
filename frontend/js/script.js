@@ -1,5 +1,5 @@
 // =========================================================
-// script.js — Calculadora Inteligente
+// script.js — Nexus Calc
 // Navegação SPA + Sidebar + Consumo da API de backend
 // =========================================================
 
@@ -1090,3 +1090,74 @@ function preencherCustoEnergia() {
         campoDestino.value = taxaPorHora.toFixed(2).replace(".", ",");
     }
 }
+
+
+// =========================================================
+// NEXUS HUB — Logo do Nexus Finance em tempo real
+// ---------------------------------------------------------
+// A logo é buscada direto do site do Nexus Finance a cada
+// carregamento (com cache-busting), então se você trocar a
+// logo lá, ela muda aqui automaticamente.
+// Tentamos os caminhos mais comuns até um funcionar.
+// =========================================================
+const NEXUS_FINANCE_URL = "https://nexus-finance-lemon.vercel.app/";
+
+const NEXUS_FINANCE_LOGO_PATHS = [
+    "logo.png",
+    "logo.svg",
+    "logo.webp",
+    "imagens/logo.png",
+    "assets/logo.png",
+    "icon-512.png",
+    "icon-512x512.png",
+    "icon-192.png",
+    "icon-192x192.png",
+    "apple-touch-icon.png",
+    "favicon.png",
+    "favicon.svg",
+    "nexus.png",
+    "favicon.ico"
+];
+
+// Fallback: emblema "N" desenhado em SVG (usado só se nada carregar)
+const NEXUS_FINANCE_LOGO_FALLBACK =
+    "data:image/svg+xml;utf8," +
+    encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">' +
+        '<rect width="64" height="64" rx="16" fill="#8b7fe8"/>' +
+        '<path d="M20 45V19h5.6l13 17.4V19H44v26h-5.6l-13-17.4V45z" fill="#ffffff"/>' +
+        '</svg>'
+    );
+
+function carregarLogoNexusFinance() {
+    const img = document.getElementById("nexus-finance-logo");
+    if (!img) return;
+
+    // Cache-busting: garante que a logo venha sempre atualizada
+    const versao = Date.now();
+    let indice = 0;
+
+    function tentarProximo() {
+        if (indice >= NEXUS_FINANCE_LOGO_PATHS.length) {
+            img.onerror = null;
+            img.src = NEXUS_FINANCE_LOGO_FALLBACK;
+            return;
+        }
+        const caminho = NEXUS_FINANCE_LOGO_PATHS[indice++];
+        img.src = NEXUS_FINANCE_URL + caminho + "?v=" + versao;
+    }
+
+    img.onerror = tentarProximo;
+    img.onload = function () {
+        // Imagem quebrada/placeholder de 0px também conta como falha
+        if (img.naturalWidth === 0) {
+            tentarProximo();
+        } else {
+            img.classList.add("carregada");
+        }
+    };
+
+    tentarProximo();
+}
+
+document.addEventListener("DOMContentLoaded", carregarLogoNexusFinance);
