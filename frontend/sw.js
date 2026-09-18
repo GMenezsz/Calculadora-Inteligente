@@ -4,7 +4,7 @@
 // =========================================================
 
 // ⚠️ MUDE ESSE NÚMERO SEMPRE QUE ATUALIZAR O SITE!
-const CACHE_NAME = "nexus-calc-v3.0.0"; 
+const CACHE_NAME = "nexus-calc-v3.1.0"; 
 
 const ARQUIVOS_PARA_CACHE = [
     "./",
