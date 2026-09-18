@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Inteligente</title>
+    <title>Nexus Calc</title>
 
     <!-- FAVICON DO SITE -->
     <!-- Coloque o ícone da aba do navegador em: frontend/imagens/favicon.png -->
@@ -13,8 +13,17 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2c3e50">
 
+    <!-- PWA iOS (ícone da tela inicial) -->
+    <link rel="apple-touch-icon" href="imagens/logo.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Nexus Calc">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Nexus Calc">
+    <meta name="description" content="Nexus Calc - suas ferramentas de cálculo em um só lugar: educação, transporte, finanças e mais.">
+
     <!-- CSS Separado -->
-    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body>
 
@@ -22,8 +31,8 @@
     <header>
         <button class="menu-toggle-btn" onclick="toggleSidebar()" aria-label="Abrir menu">☰</button>
         <div class="header-logo" onclick="navigateTo('view-home')">
-            <img src="imagens/logo.png" alt="Logo Calculadora Inteligente" onerror="this.style.display='none'">
-            <h1>Calculadora Inteligente</h1>
+            <img src="imagens/logo.png" alt="Logo Nexus Calc" onerror="this.style.display='none'">
+            <h1>Nexus Calc</h1>
         </div>
         <nav class="header-nav">
             <a href="#" onclick="navigateTo('view-home')"><span class="nav-home-icon">🏠</span> Início</a>
@@ -41,6 +50,28 @@
 
         <!-- ================= MENU LATERAL ================= -->
         <aside>
+            <!-- ===== Categoria Nexus Hub (ecossistema Nexus) ===== -->
+            <div class="sidebar-category nexus-hub-category">
+                <div class="sidebar-category-header">
+                    <span>NEXUS HUB</span>
+                    <span class="arrow">▼</span>
+                </div>
+                <div class="sidebar-sublist">
+                    <a href="https://nexus-finance-lemon.vercel.app/"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="nexus-hub-link"
+                       onclick="closeSidebar()"
+                       title="Abrir Nexus Finance">
+                        <span class="nexus-hub-logo-wrap">
+                            <img id="nexus-finance-logo" class="nexus-hub-logo" alt="Nexus Finance">
+                        </span>
+                        <span>Nexus Finance</span>
+                        <span class="nexus-hub-external">↗</span>
+                    </a>
+                </div>
+            </div>
+
             <!-- Categoria Educação -->
             <div class="sidebar-category">
                 <div class="sidebar-category-header">
@@ -155,7 +186,7 @@
                 <!-- FIM DO CARD DE DOWNLOAD -->
 
                 <div class="card-container home-hero">
-                    <h2>Calculadora Inteligente</h2>
+                    <h2>Nexus Calc</h2>
                     <p>Suas ferramentas de cálculo em um só lugar. Selecione uma calculadora no menu para começar.</p>
                 </div>
 
@@ -230,7 +261,7 @@
                 <div class="card-container">
                     <h3 style="margin-bottom: 15px; color: var(--primary-color);">Calculadora Online Gratuita</h3>
                     <p style="color: #555; line-height: 1.6;">
-                        A <strong>Calculadora Inteligente</strong> é uma plataforma 100% gratuita desenvolvida para resolver problemas práticos e dores financeiras do dia a dia, seja para profissionais autônomos, prestadores de serviços, motoristas ou qualquer pessoa que precise de respostas rápidas e exatas sem complicação.
+                        A <strong>Nexus Calc</strong> é uma plataforma 100% gratuita desenvolvida para resolver problemas práticos e dores financeiras do dia a dia, seja para profissionais autônomos, prestadores de serviços, motoristas ou qualquer pessoa que precise de respostas rápidas e exatas sem complicação.
                     </p>
                 </div>
 
@@ -1118,12 +1149,12 @@
                     </div>
 
                     <div class="legal-content">
-                        <p>A sua privacidade é de extrema importância para nós. Esta Política de Privacidade descreve como a Calculadora Inteligente coleta, usa, armazena e protege as informações dos visitantes e usuários que acessam nossa plataforma.</p>
+                        <p>A sua privacidade é de extrema importância para nós. Esta Política de Privacidade descreve como a Nexus Calc coleta, usa, armazena e protege as informações dos visitantes e usuários que acessam nossa plataforma.</p>
                         <p>Ao utilizar nosso site, você concorda com as práticas descritas nesta Política de Privacidade.</p>
 
                         <div class="legal-section">
                             <h3>1. Informações que Coletamos</h3>
-                            <p>A Calculadora Inteligente foi desenvolvida para ser utilizada de forma simples e direta, sem a necessidade de criação de contas complexas ou cadastros extensos. Podemos coletar dados das seguintes formas:</p>
+                            <p>A Nexus Calc foi desenvolvida para ser utilizada de forma simples e direta, sem a necessidade de criação de contas complexas ou cadastros extensos. Podemos coletar dados das seguintes formas:</p>
                             <ul>
                                 <li><strong>Dados de Navegação e Uso:</strong> Informações coletadas automaticamente através de ferramentas de análise e cookies, como endereço IP, tipo de navegador, páginas visitadas, tempo de permanência no site e data/horário do acesso.</li>
                                 <li><strong>Dados Informados nas Ferramentas:</strong> Os valores e números inseridos nas calculadoras (como notas, custos, preços ou dados de proporção) são processados apenas em tempo real para exibir o resultado solicitado e não são armazenados permanentemente em bancos de dados de forma associada à sua identidade pessoal.</li>
@@ -1154,12 +1185,12 @@
                     </div>
 
                     <div class="legal-content">
-                        <p>Bem-vindo ao Calculadora Inteligente. Ao acessar, navegar ou utilizar nosso site, você concorda expressamente com os termos e condições descritos abaixo. Caso não concorde com qualquer parte destes termos, recomendamos que interrompa o uso do site imediatamente.</p>
+                        <p>Bem-vindo ao Nexus Calc. Ao acessar, navegar ou utilizar nosso site, você concorda expressamente com os termos e condições descritos abaixo. Caso não concorde com qualquer parte destes termos, recomendamos que interrompa o uso do site imediatamente.</p>
 
                         <div class="legal-section">
                             <h3>1. Sobre a Plataforma e Gratuidade</h3>
                             <ol>
-                                <li>A Calculadora Inteligente é uma plataforma online e 100% gratuita que disponibiliza ferramentas de cálculo, simulação e utilidades práticas (como precificação, conversões e proporções) para auxiliar em tarefas do dia a dia.</li>
+                                <li>A Nexus Calc é uma plataforma online e 100% gratuita que disponibiliza ferramentas de cálculo, simulação e utilidades práticas (como precificação, conversões e proporções) para auxiliar em tarefas do dia a dia.</li>
                                 <li>O acesso às ferramentas é livre e gratuito, sem a exigência de cobranças, assinaturas ou taxas ocultas para a obtenção dos resultados básicos.</li>
                             </ol>
                         </div>
@@ -1169,7 +1200,7 @@
                             <ol>
                                 <li>As ferramentas, calculadoras e resultados fornecidos pelo site têm caráter estritamente informativo, educacional e de auxílio prático.</li>
                                 <li>Os cálculos e estimativas (como margens de lucro, custos operacionais, consumo de combustível, entre outros) baseiam-se nos dados inseridos exclusivamente pelo usuário e em fórmulas matemáticas padronizadas.</li>
-                                <li>A Calculadora Inteligente não se responsabiliza por decisões financeiras, comerciais, operacionais ou de qualquer outra natureza tomadas com base nos resultados gerados pela plataforma. A responsabilidade final sobre o uso dos dados e valores aplicados no mundo real é inteiramente do usuário.</li>
+                                <li>A Nexus Calc não se responsabiliza por decisões financeiras, comerciais, operacionais ou de qualquer outra natureza tomadas com base nos resultados gerados pela plataforma. A responsabilidade final sobre o uso dos dados e valores aplicados no mundo real é inteiramente do usuário.</li>
                             </ol>
                         </div>
 
@@ -1214,7 +1245,7 @@
     <footer>
         <div>
             <img src="imagens/logo.png" alt="Logo" style="width:20px; vertical-align:middle; margin-right:5px;" onerror="this.style.display='none'">
-            © 2026 Calculadora Inteligente. Todos os direitos reservados.
+            © 2026 Nexus Calc. Todos os direitos reservados.
         </div>
         <div class="footer-links">
             <a href="#" onclick="navigateTo('view-home')">Início</a>
@@ -1224,6 +1255,6 @@
     </footer>
 
     <!-- JavaScript Separado -->
-    <script src="js/script.js"></script>
+    <script src="js/script.js?v=4"></script>
 </body>
 </html>
